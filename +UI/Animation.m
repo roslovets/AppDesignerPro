@@ -13,7 +13,7 @@ classdef Animation < handle
         function obj = Animation(ui)
             %% Constructor
             obj.UI = ui;
-            obj.Worker = AsyncWorker();
+            obj.Worker = Async();
         end
         
         function start(obj)
