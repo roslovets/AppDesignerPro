@@ -4,8 +4,8 @@ classdef Overlay < handle
     
     properties
         UIFigure
-        Body
-        Main
+        UIPanel
+        Root
         Height
         Width
         BackgroundColor
@@ -31,44 +31,47 @@ classdef Overlay < handle
             obj.Width = args.Width;
             obj.BackgroundColor = args.BackgroundColor;
             obj.redraw();
+            if args.Show
+                obj.show();
+            end
         end
         
         
         function show(obj)
             %% Show input
-            obj.Body.Visible = 'on';
+            obj.Root.Visible = 'on';
         end
         
         function hide(obj)
             %% Show input
-            obj.Body.Visible = 'off';
+            obj.Root.Visible = 'off';
         end
         
         function redraw(obj)
             %% Initialize Body
-            if ~isempty(obj.Body) && isvalid(obj.Body)
-                delete(obj.Body);
+            if ~isempty(obj.Root) && isvalid(obj.Root)
+                delete(obj.Root);
             end
-            obj.Body = uigridlayout(obj.UIFigure);
-            obj.Body.RowHeight = {'1x'};
-            obj.Body.ColumnWidth = {'1x'};
-            obj.Body.Padding = 0;
+            obj.Root = uigridlayout(obj.UIFigure, 'Visible', 'off');
+            obj.Root.RowHeight = {'1x'};
+            obj.Root.ColumnWidth = {'1x'};
+            obj.Root.Padding = 0;
             if strcmpi(string(obj.BackgroundColor), 'none')
-                parent = obj.Body;
+                parent = obj.Root;
             else
-                parent = uipanel(obj.Body, 'BackgroundColor', obj.BackgroundColor);
+                parent = uipanel(obj.Root, 'BackgroundColor', obj.BackgroundColor);
             end
             grid2 = uigridlayout(parent);
             grid2.RowHeight = {'1x', obj.Height, '1x'};
             grid2.ColumnWidth = {'1x', obj.Width, '1x'};
-            obj.Main = uipanel(grid2);
-            obj.Main.Layout.Row = 2;
-            obj.Main.Layout.Column = 2;
+            obj.UIPanel = uipanel(grid2);
+            obj.UIPanel.Layout.Row = 2;
+            obj.UIPanel.Layout.Column = 2;
         end
         
         function delete(obj)
             %% Destructor
-            delete(obj.Body);
+            delete(obj.Root);
         end
         
     end
