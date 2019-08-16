@@ -4,9 +4,11 @@ classdef Snackbar < handle
     
     properties
         UIFigure
+        UILabel
+        UIButton
         Root
         Message
-        Dismissible
+        Type
         Time
         Animation
         FontSize
@@ -18,6 +20,8 @@ classdef Snackbar < handle
         MinWidth
         MinHeight
         BtnSize = 24
+        Checked
+        ActionCallback
         AnimationWorker
     end
     
@@ -29,13 +33,14 @@ classdef Snackbar < handle
             addOptional(p, 'msg', '', @(x) ischar(x) || isstring(x));
             addParameter(p, 'Theme', 'dark');
             addParameter(p, 'Time', 3);
-            addParameter(p, 'Dismissible', true);
+            addParameter(p, 'Type', 'dismissible');
             addParameter(p, 'Animation', 'slide');
             addParameter(p, 'FontSize', 12);
             addParameter(p, 'FontWeight', 'normal');
             addParameter(p, 'MarginBottom', 15);
             addParameter(p, 'MinWidth', 100);
             addParameter(p, 'MinHeight', 40);
+            addParameter(p, 'Checked', false);
             addParameter(p, 'Show', true);
             parse(p, varargin{:});
             args = p.Results;
@@ -47,13 +52,14 @@ classdef Snackbar < handle
             obj.Message = args.msg;
             obj.Theme = args.Theme;
             obj.Time = args.Time;
-            obj.Dismissible = args.Dismissible;
+            obj.Type = args.Type;
             obj.Animation = args.Animation;
             obj.FontSize = args.FontSize;
             obj.FontWeight = args.FontWeight;
             obj.MarginBottom = args.MarginBottom;
             obj.MinWidth = args.MinWidth;
             obj.MinHeight = args.MinHeight;
+            obj.Checked = args.Checked;
             if args.Show()
                 obj.show();
             end
@@ -62,7 +68,7 @@ classdef Snackbar < handle
         function show(obj)
             %% Show snackbar
             obj.close();
-            obj.redraw();
+            obj.init();
             obj.setVisibility('on');
             obj.initAnimationWorker();
             obj.AnimationWorker.start();
@@ -74,43 +80,79 @@ classdef Snackbar < handle
             obj.setVisibility('off');
         end
         
-        function redraw(obj)
+        function action(obj, varargin)
+            %% Snackbar button action
+            if obj.Type == "dismissible"
+                obj.close();
+            elseif obj.Type == "checkable"
+                obj.Checked = ~obj.Checked;
+                obj.redraw();
+            end
+            if ~isempty(obj.ActionCallback)
+                obj.ActionCallback();
+            end
+        end
+        
+        function init(obj)
             %% Initialize Body
             if ~isempty(obj.Root) && isvalid(obj.Root)
                 delete(obj.Root);
             end
             obj.Root = uipanel(obj.UIFigure, 'Visible', 'off');
-            obj.Root.BackgroundColor = obj.Color;
-            uilbl = uilabel(obj.Root, 'Text', obj.Message);
-            uilbl.VerticalAlignment = 'center';
-            uilbl.HorizontalAlignment = 'center';
-            uilbl.BackgroundColor = obj.Color;
-            uilbl.FontColor = obj.FontColor;
-            uilbl.FontSize = obj.FontSize;
-            uilbl.FontWeight = obj.FontWeight;
+            obj.UILabel = uilabel(obj.Root, 'Text', obj.Message);
+            obj.UILabel.VerticalAlignment = 'center';
+            obj.UILabel.HorizontalAlignment = 'center';
+            if obj.Type == "dismissible" || obj.Type == "checkable"
+                if obj.Type == "checkable"
+                    btntxt = char(10003);
+                else
+                    btntxt = char(10005);
+                end
+                obj.UIButton = uibutton(obj.Root, 'Text', btntxt);
+                obj.UIButton.FontSize = floor(obj.BtnSize / 2);
+                obj.UIButton.ButtonPushedFcn = @obj.action;
+            end
+            obj.redraw();
+        end
+        
+        function redraw(obj)
+            %% Redraw snackbar
+            color = obj.Color;
+            fontcolor = obj.FontColor;
+            if obj.Type == "checkable"
+                if obj.Checked
+                    obj.FontWeight = 'normal';
+                    [color, fontcolor] = uitheme('none');
+                else
+                    obj.FontWeight = 'bold';
+                end
+            end
+            obj.Root.BackgroundColor = color;
             txt = split(cellstr(obj.Message), newline);
             width = max(cellfun('length', txt)) * obj.FontSize * 0.5 + 50;
             width = max([obj.MinWidth width]);
             height = length(txt) * obj.FontSize * 1.2 + 22;
             height = max([obj.MinHeight height]);
             pos = obj.Root.Position;
-            if obj.Dismissible
+            pos(2:4) = [obj.MarginBottom width height];
+            pos = uialign(pos, obj.UIFigure, 'center', '', true);
+            obj.Root.Position = pos;
+            if ~isempty(obj.UIButton)
                 boffset = obj.BtnSize * 1.2;
             else
                 boffset = 0;
             end
-            pos(2:4) = [obj.MarginBottom width height];
-            pos = uialign(pos, obj.UIFigure, 'center', '', true);
-            obj.Root.Position = pos;
-            uilbl.Position = [0, 0, pos(3) - boffset, pos(4)];
-            if obj.Dismissible
-                uibtn = uibutton(obj.Root, 'Text', char(10005));
-                uibtn.BackgroundColor = obj.Color;
-                uibtn.FontColor = obj.FontColor;
-                uibtn.FontSize = floor(obj.BtnSize / 2);
+            obj.UILabel.Text = obj.Message;
+            obj.UILabel.Position = [0, 0, pos(3) - boffset, pos(4)];
+            obj.UILabel.BackgroundColor = color;
+            obj.UILabel.FontColor = fontcolor;
+            obj.UILabel.FontSize = obj.FontSize;
+            obj.UILabel.FontWeight = obj.FontWeight;
+            if ~isempty(obj.UIButton)
+                obj.UIButton.BackgroundColor = color;
+                obj.UIButton.FontColor = fontcolor;
                 btnpos = [pos(3) - obj.BtnSize*1.2, 0, obj.BtnSize, obj.BtnSize];
-                uibtn.Position = uialign(btnpos, pos, '', 'center', true);
-                uibtn.ButtonPushedFcn = @obj.close;
+                obj.UIButton.Position = uialign(btnpos, pos, '', 'center', true);
             end
         end
         
@@ -149,9 +191,24 @@ classdef Snackbar < handle
             obj.Animation = animation;
         end
         
+        function set.Type(obj, type)
+            %% Set theme
+            type = lower(type);
+            obj.validateType(type);
+            obj.Type = type;
+        end
+        
         function set.Theme(obj, theme)
             %% Set theme
             [obj.Color, obj.FontColor] = uitheme(theme);
+        end
+        
+        function validateType(~, type)
+            %% Validate snackbar type
+            typelist = ["normal" "dismissible" "checkable"];
+            if ~ismember(type, typelist)
+                error('Unknown type: %s. Use one of the: %s', type, join(typelist, '|'));
+            end
         end
         
         function setVisibility(obj, vis)
