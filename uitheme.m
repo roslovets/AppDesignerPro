@@ -2,6 +2,9 @@ function [color, fontcolor] = uitheme(theme)
 %% Get theme colors
 theme = lower(theme);
 switch theme
+    case 'none'
+        color = [0.94 0.94 0.94];
+        fontcolor = [0 0 0];
     case 'dark'
         color = [0.149 0.149 0.149];
         fontcolor = [1 1 1];
@@ -21,6 +24,6 @@ switch theme
         color = '#f8d7da';
         fontcolor = '#721c24';
     otherwise
-        error('Unknown theme: %s. Use one of the: dark|light|success|info|warning|danger', theme);
+        error('Unknown theme: %s. Use one of the: none|dark|light|success|info|warning|danger', theme);
 end
 
