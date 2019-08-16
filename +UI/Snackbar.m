@@ -1,41 +1,71 @@
-classdef GUISnackbar < handle
+classdef Snackbar < handle
     %Summary of this class goes here
     %   Detailed explanation goes here
     
     properties
         UIFigure
-        Body
-        Message = ''
-        Dismissible = true
-        Time = 3
+        Root
+        Message
+        Dismissible
+        Time
         Animation
-        FontSize = 12
-        MarginBottom = 15
+        FontSize
+        FontWeight
+        MarginBottom
         Theme
         Color
         FontColor
-        MinWidth = 100
-        MinHeight = 40
+        MinWidth
+        MinHeight
         BtnSize = 24
         AnimationWorker
     end
     
     methods
-        function obj = GUISnackbar(uifig, msg)
+        function obj = Snackbar(varargin)
             %% Constructor
-            obj.UIFigure = uifig;
-            obj.Message = msg;
-            obj.Theme = 'dark';
-            obj.Animation = 'slide';
+            p = inputParser;
+            addOptional(p, 'uifig', []);
+            addOptional(p, 'msg', '', @(x) ischar(x) || isstring(x));
+            addParameter(p, 'Theme', 'dark');
+            addParameter(p, 'Time', 3);
+            addParameter(p, 'Dismissible', true);
+            addParameter(p, 'Animation', 'slide');
+            addParameter(p, 'FontSize', 12);
+            addParameter(p, 'FontWeight', 'normal');
+            addParameter(p, 'MarginBottom', 15);
+            addParameter(p, 'MinWidth', 100);
+            addParameter(p, 'MinHeight', 40);
+            addParameter(p, 'Show', true);
+            parse(p, varargin{:});
+            args = p.Results;
+            if isempty(args.uifig)
+                obj.UIFigure = uifigure;
+            else
+                obj.UIFigure = args.uifig;
+            end
+            obj.Message = args.msg;
+            obj.Theme = args.Theme;
+            obj.Time = args.Time;
+            obj.Dismissible = args.Dismissible;
+            obj.Animation = args.Animation;
+            obj.FontSize = args.FontSize;
+            obj.FontWeight = args.FontWeight;
+            obj.MarginBottom = args.MarginBottom;
+            obj.MinWidth = args.MinWidth;
+            obj.MinHeight = args.MinHeight;
+            if args.Show()
+                obj.show();
+            end
         end
         
         function show(obj)
             %% Show snackbar
             obj.close();
-            obj.initBody();
+            obj.redraw();
+            obj.setVisibility('on');
             obj.initAnimationWorker();
             obj.AnimationWorker.start();
-            obj.setVisibility('on');
         end
         
         function close(obj, varargin)
@@ -44,25 +74,26 @@ classdef GUISnackbar < handle
             obj.setVisibility('off');
         end
         
-        function initBody(obj)
+        function redraw(obj)
             %% Initialize Body
-            if ~isempty(obj.Body) && isvalid(obj.Body)
-                delete(obj.Body);
+            if ~isempty(obj.Root) && isvalid(obj.Root)
+                delete(obj.Root);
             end
-            obj.Body = uipanel(obj.UIFigure, 'Visible', 'off');
-            obj.Body.BackgroundColor = obj.Color;
-            uilbl = uilabel(obj.Body, 'Text', obj.Message);
+            obj.Root = uipanel(obj.UIFigure, 'Visible', 'off');
+            obj.Root.BackgroundColor = obj.Color;
+            uilbl = uilabel(obj.Root, 'Text', obj.Message);
             uilbl.VerticalAlignment = 'center';
             uilbl.HorizontalAlignment = 'center';
             uilbl.BackgroundColor = obj.Color;
             uilbl.FontColor = obj.FontColor;
             uilbl.FontSize = obj.FontSize;
+            uilbl.FontWeight = obj.FontWeight;
             txt = split(cellstr(obj.Message), newline);
             width = max(cellfun('length', txt)) * obj.FontSize * 0.5 + 50;
             width = max([obj.MinWidth width]);
             height = length(txt) * obj.FontSize * 1.2 + 22;
             height = max([obj.MinHeight height]);
-            pos = obj.Body.Position;
+            pos = obj.Root.Position;
             if obj.Dismissible
                 boffset = obj.BtnSize * 1.2;
             else
@@ -70,10 +101,10 @@ classdef GUISnackbar < handle
             end
             pos(2:4) = [obj.MarginBottom width height];
             pos = uialign(pos, obj.UIFigure, 'center', '', true);
-            obj.Body.Position = pos;
+            obj.Root.Position = pos;
             uilbl.Position = [0, 0, pos(3) - boffset, pos(4)];
             if obj.Dismissible
-                uibtn = uibutton(obj.Body, 'Text', 'X');
+                uibtn = uibutton(obj.Root, 'Text', char(10005));
                 uibtn.BackgroundColor = obj.Color;
                 uibtn.FontColor = obj.FontColor;
                 uibtn.FontSize = floor(obj.BtnSize / 2);
@@ -85,14 +116,14 @@ classdef GUISnackbar < handle
         
         function initAnimationWorker(obj)
             %% Create animation worker
-            obj.AnimationWorker = UI.Animation(obj.Body);
+            obj.AnimationWorker = UI.Animation(obj.Root);
             if obj.Animation == "none"
                 closedelay = obj.Time;
             else
                 switch obj.Animation
                     case "slide"
-                        x = obj.Body.Position(1);
-                        y = [-obj.Body.Position(4) obj.MarginBottom];
+                        x = obj.Root.Position(1);
+                        y = [-obj.Root.Position(4) obj.MarginBottom];
                     case "zoom"
                         x = [0.9 1];
                         y = [0.9 1];
@@ -101,11 +132,15 @@ classdef GUISnackbar < handle
                         y = 1;
                 end
                 obj.AnimationWorker.add(obj.Animation, x, y);
-                obj.AnimationWorker.addDelay(obj.Time);
-                obj.AnimationWorker.add(obj.Animation, fliplr(x), fliplr(y));
-                closedelay = 0;
+                if isfinite(obj.Time)
+                    obj.AnimationWorker.addDelay(obj.Time);
+                    obj.AnimationWorker.add(obj.Animation, fliplr(x), fliplr(y));
+                    closedelay = 0;
+                end
             end
-            obj.AnimationWorker.addTask(@obj.close, closedelay);
+            if isfinite(obj.Time)
+                obj.AnimationWorker.addTask(@obj.close, closedelay);
+            end
         end
         
         function set.Animation(obj, animation)
@@ -121,15 +156,15 @@ classdef GUISnackbar < handle
         
         function setVisibility(obj, vis)
             %% Set visibility of panel
-            if ~isempty(obj.Body) && isvalid(obj.Body)
-                obj.Body.Visible = vis;
+            if ~isempty(obj.Root) && isvalid(obj.Root)
+                obj.Root.Visible = vis;
             end
         end
         
         function delete(obj)
             %% Destructor
             delete(obj.AnimationWorker);
-            delete(obj.Body);
+            delete(obj.Root);
         end
         
     end

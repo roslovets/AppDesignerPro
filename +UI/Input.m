@@ -98,18 +98,19 @@ classdef Input < handle
         function f = drawFields(obj, parent)
             %% Add field to input
             refpos = [0 0 obj.Width obj.Height];
-            for i = 1 : height(obj.Fields)
-                title = obj.Fields.title{i};
-                value = obj.Fields.value{i};
+            fields = obj.Fields;
+            for i = 1 : height(fields)
+                title = fields.title{i};
+                value = fields.value{i};
                 f = uieditfield(parent, 'Value', value);
 %                 f = uicheckbox(parent);
                 inppos = f.Position;
                 inppos(3) = refpos(3) - 14;
-                inpoffset = [0, i * obj.FieldsGap - 10];
+                inpoffset = [0, (height(fields)+1-i) * obj.FieldsGap - 10];
                 f.Position = uialign(inppos, refpos, 'center', 'bottom', false, inpoffset);
                 lbl = uilabel(parent, 'Text', title);
                 lbl.Position(3) = refpos(3) - 5*2;
-                lbloffset = [0, inppos(4) + 0];
+                lbloffset = [0 inppos(4)];
                 uialign(lbl, f.Position, 'left', 'center', false, lbloffset);
                 obj.UIFields = [obj.UIFields; f];
             end
@@ -122,4 +123,3 @@ classdef Input < handle
         
     end
 end
-

@@ -69,6 +69,11 @@ classdef Overlay < handle
             obj.UIPanel.Layout.Column = 2;
         end
         
+        function yes = isVisible(obj)
+            %% Check overlay is visible
+            yes = obj.Root.Visible == "on";
+        end
+        
         function delete(obj)
             %% Destructor
             delete(obj.Root);
@@ -76,4 +81,3 @@ classdef Overlay < handle
         
     end
 end
-

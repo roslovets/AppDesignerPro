@@ -4,7 +4,7 @@ function varargout = uiinput(varargin)
 showi = cellfun(@(x) (isstring(x)||ischar(x))&&strcmp(x, 'Show'), varargin);
 showi = find(showi);
 i = UI.Input(varargin{:});
-if ~isempty(showi) && ~varargin{showi+1}
+if ~isempty(showi) && ~varargin{showi + 1}
     varargout = {i};
 else
     varargout = {i.Values i.Ok};
