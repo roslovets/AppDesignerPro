@@ -137,7 +137,8 @@ classdef Snackbar < handle
             pos(2:4) = [obj.MarginBottom width height];
             pos = uialign(pos, obj.UIFigure, 'center', '', true);
             obj.Root.Position = pos;
-            if ~isempty(obj.UIButton)
+            isbut = ~isempty(obj.UIButton) && isvalid(obj.UIButton);
+            if isbut
                 boffset = obj.BtnSize * 1.2;
             else
                 boffset = 0;
@@ -148,7 +149,7 @@ classdef Snackbar < handle
             obj.UILabel.FontColor = fontcolor;
             obj.UILabel.FontSize = obj.FontSize;
             obj.UILabel.FontWeight = obj.FontWeight;
-            if ~isempty(obj.UIButton)
+            if isbut
                 obj.UIButton.BackgroundColor = color;
                 obj.UIButton.FontColor = fontcolor;
                 btnpos = [pos(3) - obj.BtnSize*1.2, 0, obj.BtnSize, obj.BtnSize];
@@ -166,6 +167,7 @@ classdef Snackbar < handle
                     case "slide"
                         x = obj.Root.Position(1);
                         y = [-obj.Root.Position(4) obj.MarginBottom];
+%                         y = [obj.UIFigure.Position(4) obj.UIFigure.Position(4)-obj.MarginBottom-obj.Root.Position(4)];
                     case "zoom"
                         x = [0.9 1];
                         y = [0.9 1];
