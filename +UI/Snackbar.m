@@ -10,15 +10,17 @@ classdef Snackbar < handle
         Message
         Type
         Time
+        Location
         Animation
         FontSize
         FontWeight
-        MarginBottom
+        Margin
         Theme
         Color
         FontColor
         MinWidth
         MinHeight
+        Offset
         BtnSize = 24
         Checked
         ActionCallback
@@ -34,12 +36,14 @@ classdef Snackbar < handle
             addParameter(p, 'Theme', 'dark');
             addParameter(p, 'Time', 3);
             addParameter(p, 'Type', 'dismissible');
+            addParameter(p, 'Location', 'bottom');
             addParameter(p, 'Animation', 'slide');
             addParameter(p, 'FontSize', 12);
             addParameter(p, 'FontWeight', 'normal');
-            addParameter(p, 'MarginBottom', 15);
+            addParameter(p, 'Margin', 15);
             addParameter(p, 'MinWidth', 100);
             addParameter(p, 'MinHeight', 40);
+            addParameter(p, 'Offset', [0 0]);
             addParameter(p, 'Checked', false);
             addParameter(p, 'Show', true);
             parse(p, varargin{:});
@@ -53,12 +57,14 @@ classdef Snackbar < handle
             obj.Theme = args.Theme;
             obj.Time = args.Time;
             obj.Type = args.Type;
+            obj.Location = args.Location;
             obj.Animation = args.Animation;
             obj.FontSize = args.FontSize;
             obj.FontWeight = args.FontWeight;
-            obj.MarginBottom = args.MarginBottom;
+            obj.Margin = args.Margin;
             obj.MinWidth = args.MinWidth;
             obj.MinHeight = args.MinHeight;
+            obj.Offset = args.Offset;
             obj.Checked = args.Checked;
             if args.Show()
                 obj.show();
@@ -134,8 +140,20 @@ classdef Snackbar < handle
             height = length(txt) * obj.FontSize * 1.2 + 22;
             height = max([obj.MinHeight height]);
             pos = obj.Root.Position;
-            pos(2:4) = [obj.MarginBottom width height];
-            pos = uialign(pos, obj.UIFigure, 'center', '', true);
+            pos(3:4) = [width height];
+            switch obj.Location
+                case "bottom"
+                    pos = uialign(pos, obj.UIFigure, 'center', 'bottom', true, [0 obj.Margin]);
+                case "top"
+                    pos = uialign(pos, obj.UIFigure, 'center', 'top', true, [0 -obj.Margin]);
+                case "left"
+                    pos = uialign(pos, obj.UIFigure, 'left', 'center', true, [obj.Margin 0]);
+                case "right"
+                    pos = uialign(pos, obj.UIFigure, 'right', 'center', true, [-obj.Margin 0]);
+                case "center"
+                    pos = uialign(pos, obj.UIFigure, 'center', 'center', true);
+            end
+            pos([1 2]) = pos([1 2]) + obj.Offset;
             obj.Root.Position = pos;
             isbut = ~isempty(obj.UIButton) && isvalid(obj.UIButton);
             if isbut
@@ -165,9 +183,20 @@ classdef Snackbar < handle
             else
                 switch obj.Animation
                     case "slide"
-                        x = obj.Root.Position(1);
-                        y = [-obj.Root.Position(4) obj.MarginBottom];
-%                         y = [obj.UIFigure.Position(4) obj.UIFigure.Position(4)-obj.MarginBottom-obj.Root.Position(4)];
+                        switch obj.Location
+                            case "bottom"
+                                x = obj.Root.Position(1);
+                                y = [-obj.Root.Position(4) obj.Root.Position(2)];
+                            case "left"
+                                x = [-obj.Root.Position(3) obj.Root.Position(1)];
+                                y = obj.Root.Position(2);
+                            case "right"
+                                x = [obj.UIFigure.Position(3) obj.Root.Position(1)];
+                                y = obj.Root.Position(2);
+                            otherwise % top, center
+                                x = obj.Root.Position(1);
+                                y = [obj.UIFigure.Position(4) obj.Root.Position(2)];
+                        end
                     case "zoom"
                         x = [0.9 1];
                         y = [0.9 1];
