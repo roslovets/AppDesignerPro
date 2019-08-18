@@ -70,7 +70,7 @@ hpos = calcPos(pos, refpos, 1, horalign);
 vpos = calcPos(pos, refpos, 2, vertalign);
 pos = [hpos(:,1) vpos(:,2) hpos(:,3) vpos(:,4)];
 if ~isempty(offset)
-    pos([1 2]) = pos([1 2]) + offset;
+    pos(:, [1 2]) = pos(:, [1 2]) + offset;
 end
 if setpos
     set(objects, {'Position'}, num2cell(pos, 2));
@@ -80,8 +80,8 @@ end
 function pos = calcPos(pos, refpos, dim, alignment)
 %% Calculate aligned positions
 alignment = lower(char(alignment));
-alignlist = ["left" "center" "right" "fill"
-             "bottom" "center" "top" "fill"];
+alignlist = ["left" "center" "right" "same" "fill"
+             "bottom" "center" "top" "same" "fill"];
 dimlist = ["Horizontal" "Vertical"];
 if ~isempty(alignment)
     alnum = find(alignlist(dim, :) == alignment);
@@ -99,6 +99,11 @@ if ~isempty(alignment)
                 pos(:,dim) = refpos(1,dim) + (refpos(1,dim+2) - pos(:,dim+2));
             case 4
                 pos(:, dim+[0 2]) = repmat(refpos(:, dim+[0 2]), size(pos, 1), 1);
+            case 5
+                sumpos = sum(pos(:, 3));
+                gap = floor((refpos(3) - sumpos) / size(pos, 1));
+                ws = [0; pos(1:end-1, 3)] + gap;
+                pos(:, 1) = refpos(1) + cumsum(ws);
         end
     end
 end

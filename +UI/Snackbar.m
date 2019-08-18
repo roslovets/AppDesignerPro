@@ -6,11 +6,13 @@ classdef Snackbar < handle
         UIFigure
         UILabel
         UIButton
+        UIActions
         Root
         Message
         Type
         Time
         Location
+        Actions
         Animation
         FontSize
         FontWeight
@@ -37,6 +39,7 @@ classdef Snackbar < handle
             addParameter(p, 'Time', 3);
             addParameter(p, 'Type', 'dismissible');
             addParameter(p, 'Location', 'bottom');
+            addParameter(p, 'Actions', []);
             addParameter(p, 'Animation', 'slide');
             addParameter(p, 'FontSize', 12);
             addParameter(p, 'FontWeight', 'normal');
@@ -66,6 +69,11 @@ classdef Snackbar < handle
             obj.MinHeight = args.MinHeight;
             obj.Offset = args.Offset;
             obj.Checked = args.Checked;
+            if isempty(args.Actions)
+                obj.Actions = cell2table(cell(0, 2), 'VariableNames', {'name' 'fcn'});
+            else
+                obj.Actions = args.Actions;
+            end
             if args.Show()
                 obj.show();
             end
@@ -86,7 +94,7 @@ classdef Snackbar < handle
             obj.setVisibility('off');
         end
         
-        function action(obj, varargin)
+        function mainAction(obj, varargin)
             %% Snackbar button action
             if obj.Type == "dismissible"
                 obj.close();
@@ -116,7 +124,14 @@ classdef Snackbar < handle
                 end
                 obj.UIButton = uibutton(obj.Root, 'Text', btntxt);
                 obj.UIButton.FontSize = floor(obj.BtnSize / 2);
-                obj.UIButton.ButtonPushedFcn = @obj.action;
+                obj.UIButton.ButtonPushedFcn = @obj.mainAction;
+            end
+            if ~isempty(obj.Actions)
+                obj.UIActions = gobjects(1, height(obj.Actions));
+                for i = 1 : height(obj.Actions)
+                    obj.UIActions(i) = uibutton(obj.Root,...
+                        'Text', obj.Actions.name{i}, 'ButtonPushedFcn', obj.Actions.fcn{i});
+                end
             end
             obj.redraw();
         end
@@ -134,13 +149,15 @@ classdef Snackbar < handle
                 end
             end
             obj.Root.BackgroundColor = color;
-            txt = split(cellstr(obj.Message), newline);
-            width = max(cellfun('length', txt)) * obj.FontSize * 0.5 + 50;
-            width = max([obj.MinWidth width]);
-            height = length(txt) * obj.FontSize * 1.2 + 22;
-            height = max([obj.MinHeight height]);
+            isbut = ~isempty(obj.UIButton) && isvalid(obj.UIButton);
+            isact = ~isempty(obj.UIActions) && all(isvalid(obj.UIActions));
+            boffset = isbut * obj.BtnSize * 1.2;
+            actoffset = isact * 30;
+            [w, h] = obj.calcTextSize(obj.Message, obj.FontSize);
+            w = max([obj.MinWidth, w + 25 + boffset]);
+            h = max([obj.MinHeight, h + 22 + actoffset]);
             pos = obj.Root.Position;
-            pos(3:4) = [width height];
+            pos(3:4) = [w h];
             switch obj.Location
                 case "bottom"
                     pos = uialign(pos, obj.UIFigure, 'center', 'bottom', true, [0 obj.Margin]);
@@ -155,23 +172,22 @@ classdef Snackbar < handle
             end
             pos([1 2]) = pos([1 2]) + obj.Offset;
             obj.Root.Position = pos;
-            isbut = ~isempty(obj.UIButton) && isvalid(obj.UIButton);
+            set(obj.UILabel, 'Text', obj.Message,...
+                'BackgroundColor', color, 'FontColor', fontcolor,...
+                'FontSize', obj.FontSize, 'FontWeight', obj.FontWeight);
+            obj.UILabel.Position = [0, actoffset, pos(3) - boffset, pos(4) - actoffset];
             if isbut
-                boffset = obj.BtnSize * 1.2;
-            else
-                boffset = 0;
-            end
-            obj.UILabel.Text = obj.Message;
-            obj.UILabel.Position = [0, 0, pos(3) - boffset, pos(4)];
-            obj.UILabel.BackgroundColor = color;
-            obj.UILabel.FontColor = fontcolor;
-            obj.UILabel.FontSize = obj.FontSize;
-            obj.UILabel.FontWeight = obj.FontWeight;
-            if isbut
-                obj.UIButton.BackgroundColor = color;
-                obj.UIButton.FontColor = fontcolor;
+                set(obj.UIButton, 'BackgroundColor', color, 'FontColor', fontcolor);
                 btnpos = [pos(3) - obj.BtnSize*1.2, 0, obj.BtnSize, obj.BtnSize];
+                pos([2 4]) = pos([2 4]) + actoffset;
                 obj.UIButton.Position = uialign(btnpos, pos, '', 'center', true);
+            end
+            if isact
+                set(obj.UIActions, 'BackgroundColor', color);
+                set(obj.UIActions, 'FontColor', fontcolor);
+                obj.UIActions(1).Position(3) = obj.calcTextSize(obj.UIActions);
+%                 uialign(obj.UIActions, obj.Root, 'center', 'bottom', true, [0 7]);
+                uialign(obj.UIActions, obj.Root, 'fill', 'bottom', true, [0 7]);
             end
         end
         
@@ -232,6 +248,24 @@ classdef Snackbar < handle
         function set.Theme(obj, theme)
             %% Set theme
             [obj.Color, obj.FontColor] = uitheme(theme);
+        end
+        
+        function [w, h] = calcTextSize(~, obj, fontsize)
+            %% Calculate size of element with text
+            if isgraphics(obj)
+                txt = obj.Text;
+            else
+                txt = obj;
+            end
+            if nargin < 3
+                fontsize = obj.FontSize;
+            end
+            txt = cellstr(txt);
+            if contains(txt, newline)
+                txt = split(txt, newline);
+            end
+            w = max(cellfun('length', txt)) * fontsize * 0.5 + 25;
+            h = length(txt) * fontsize * 1.2;
         end
         
         function validateType(~, type)
