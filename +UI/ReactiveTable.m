@@ -1,4 +1,4 @@
-classdef GUIReactiveTable < GUIReactive
+classdef ReactiveTable < UI.Reactive
     %UNTITLED2 Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -11,9 +11,9 @@ classdef GUIReactiveTable < GUIReactive
     end
     
     methods
-        function obj = GUIReactiveTable(varargin)
+        function obj = ReactiveTable(varargin)
             %% GUI Reactive Table
-            obj = obj@GUIReactive(varargin{:});
+            obj = obj@UI.Reactive(varargin{:});
             obj.setVariables();
         end
         
@@ -27,7 +27,7 @@ classdef GUIReactiveTable < GUIReactive
         
         function redraw(obj)
             %% Redraw table
-            redraw@GUIReactive(obj);
+            redraw@UI.Reactive(obj);
             if ~isempty(obj.ColumnName)
                 obj.GUI(1).ColumnName = obj.ColumnName;
             end
@@ -35,7 +35,7 @@ classdef GUIReactiveTable < GUIReactive
         
         function update(obj, varargin)
             %% Update table
-            update@GUIReactive(obj, varargin{:});
+            update@UI.Reactive(obj, varargin{:});
             obj.redrawVars();
         end
         
@@ -126,7 +126,7 @@ classdef GUIReactiveTable < GUIReactive
             if isempty(obj.GUIVar)
                 obj.GUIVar = cell2table(cell(0, 3), 'VariableNames', {'Var' 'GUIObj' 'GUIReact'});
             end
-            guireact = GUIReactive([], @()obj.readVarData(var), @(x)obj.writeVarData(var, x));
+            guireact = UI.Reactive([], @()obj.readVarData(var), @(x)obj.writeVarData(var, x));
             guireact.bind(guiobj);
             obj.GUIVar = [obj.GUIVar; {var guiobj guireact}];
         end

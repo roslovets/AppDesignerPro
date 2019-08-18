@@ -1,4 +1,4 @@
-classdef GUIReactive < handle
+classdef Reactive < handle
     %UNTITLED2 Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -14,7 +14,7 @@ classdef GUIReactive < handle
     end
     
     methods
-        function obj = GUIReactive(source, reader, writer)
+        function obj = Reactive(source, reader, writer)
             %% Create new reactive element
             obj.Source = source;
             if nargin > 1 && ~isempty(reader)
