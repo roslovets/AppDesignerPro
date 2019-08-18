@@ -92,7 +92,7 @@ classdef Input < handle
             okbtn = uibutton(panel, 'Text', 'OK', 'ButtonPushedFcn', @(~,~)obj.apply());
             okbtnpos = okbtn.Position;
             okbtnpos(3) = obj.BtnWidth;
-            okbtn.Position = uialign(okbtnpos, cbtn, 'right', 'fill', false, [-(obj.BtnWidth+5) 0]);
+            okbtn.Position = uialign(okbtnpos, cbtn, 'right', 'same', false, [-(obj.BtnWidth+5) 0]);
         end
         
         function f = drawFields(obj, parent)
