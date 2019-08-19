@@ -93,7 +93,7 @@ classdef Reactive < handle
                         value = obj.convert(data, class(get(guiObj, 'Value')));
                         if isprop(guiObj, 'Limits') 
                             limits = get(guiObj, 'Limits');
-                            if isempty(value) || isnan(value)
+                            if isempty(value) || (isnumeric(value) && isnan(value)) || (isdatetime(value) && isnat(value))
                                 value = limits(1);
                             elseif value < limits(1)
                                 value = limits(1);
@@ -139,7 +139,7 @@ classdef Reactive < handle
             VARS = {'double' 'char' 'cell' 'datetime' 'table' 'logical' 'struct' 'function_handle' 'categorical' 'string'};
             RULES = {
                 [] @num2str @num2cell @datetime @array2table @logical [] [] @categorical @string
-                @str2double [] @cellstr @datetime [] [] [] @str2fun @categorical @string
+                @str2double [] @cellstr @datetime [] @(x)any(logical(x)) [] @str2fun @categorical @string
                 @cell2mat @char [] @datetime @cell2table [] @cell2struct [] @categorical @string
                 @datenum @char @cellstr [] [] [] [] [] [] @string
                 @table2array [] @table2cell [] [] [] @table2struct [] [] []

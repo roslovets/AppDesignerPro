@@ -91,7 +91,7 @@ classdef ReactiveTable < UI.Reactive
             end
             data = [data; newrow];
             if ~isempty(varargin)
-                for i = 1 : 2: length(varargin)/2
+                for i = 1 : 2 : length(varargin)
                     var = varargin{i};
                     value = varargin{i+1};
                     data{end, var} = obj.convert(value, obj.getVarType(var));
