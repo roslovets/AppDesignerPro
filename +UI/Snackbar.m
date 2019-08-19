@@ -1,4 +1,4 @@
-classdef Snackbar < handle
+classdef Snackbar < matlab.mixin.SetGet
     %Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -24,9 +24,11 @@ classdef Snackbar < handle
         MinHeight
         Offset
         BtnSize = 24
+        Position
         Checked
-        ActionCallback
+        MainActionFcn
         AnimationWorker
+        UserData
     end
     
     methods
@@ -47,7 +49,9 @@ classdef Snackbar < handle
             addParameter(p, 'MinWidth', 100);
             addParameter(p, 'MinHeight', 40);
             addParameter(p, 'Offset', [0 0]);
+            addParameter(p, 'MainActionFcn', []);
             addParameter(p, 'Checked', false);
+            addParameter(p, 'UserData', []);
             addParameter(p, 'Show', true);
             parse(p, varargin{:});
             args = p.Results;
@@ -68,7 +72,9 @@ classdef Snackbar < handle
             obj.MinWidth = args.MinWidth;
             obj.MinHeight = args.MinHeight;
             obj.Offset = args.Offset;
+            obj.MainActionFcn = args.MainActionFcn;
             obj.Checked = args.Checked;
+            obj.UserData = args.UserData;
             if isempty(args.Actions) || iscell(args.Actions)
                 obj.Actions = cell2table(cell(0, 2), 'VariableNames', {'name' 'fcn'});
                 if iscell(args.Actions)
@@ -105,8 +111,8 @@ classdef Snackbar < handle
                 obj.Checked = ~obj.Checked;
                 obj.redraw();
             end
-            if ~isempty(obj.ActionCallback)
-                obj.ActionCallback();
+            if ~isempty(obj.MainActionFcn)
+                obj.MainActionFcn(obj, varargin{:});
             end
         end
         
@@ -159,21 +165,25 @@ classdef Snackbar < handle
             [w, h] = obj.calcTextSize(obj.Message, obj.FontSize);
             w = max([obj.MinWidth, w + 25 + boffset]);
             h = max([obj.MinHeight, h + 22 + actoffset]);
-            pos = obj.Root.Position;
-            pos(3:4) = [w h];
-            switch obj.Location
-                case "bottom"
-                    pos = uialign(pos, obj.UIFigure, 'center', 'bottom', true, [0 obj.Margin]);
-                case "top"
-                    pos = uialign(pos, obj.UIFigure, 'center', 'top', true, [0 -obj.Margin]);
-                case "left"
-                    pos = uialign(pos, obj.UIFigure, 'left', 'center', true, [obj.Margin 0]);
-                case "right"
-                    pos = uialign(pos, obj.UIFigure, 'right', 'center', true, [-obj.Margin 0]);
-                case "center"
-                    pos = uialign(pos, obj.UIFigure, 'center', 'center', true);
+            if isempty(obj.Position)
+                pos = obj.Root.Position;
+                pos(3:4) = [w h];
+                switch obj.Location
+                    case "bottom"
+                        pos = uialign(pos, obj.UIFigure, 'center', 'bottom', true, [0 obj.Margin]);
+                    case "top"
+                        pos = uialign(pos, obj.UIFigure, 'center', 'top', true, [0 -obj.Margin]);
+                    case "left"
+                        pos = uialign(pos, obj.UIFigure, 'left', 'center', true, [obj.Margin 0]);
+                    case "right"
+                        pos = uialign(pos, obj.UIFigure, 'right', 'center', true, [-obj.Margin 0]);
+                    case "center"
+                        pos = uialign(pos, obj.UIFigure, 'center', 'center', true);
+                end
+                pos([1 2]) = pos([1 2]) + obj.Offset;
+            else
+                pos = obj.Position;
             end
-            pos([1 2]) = pos([1 2]) + obj.Offset;
             obj.Root.Position = pos;
             set(obj.UILabel, 'Text', obj.Message,...
                 'BackgroundColor', color, 'FontColor', fontcolor,...
