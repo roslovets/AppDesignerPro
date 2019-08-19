@@ -69,8 +69,11 @@ classdef Snackbar < handle
             obj.MinHeight = args.MinHeight;
             obj.Offset = args.Offset;
             obj.Checked = args.Checked;
-            if isempty(args.Actions)
+            if isempty(args.Actions) || iscell(args.Actions)
                 obj.Actions = cell2table(cell(0, 2), 'VariableNames', {'name' 'fcn'});
+                if iscell(args.Actions)
+                    obj.Actions = [obj.Actions; args.Actions];
+                end
             else
                 obj.Actions = args.Actions;
             end
@@ -185,9 +188,10 @@ classdef Snackbar < handle
             if isact
                 set(obj.UIActions, 'BackgroundColor', color);
                 set(obj.UIActions, 'FontColor', fontcolor);
-                obj.UIActions(1).Position(3) = obj.calcTextSize(obj.UIActions);
-%                 uialign(obj.UIActions, obj.Root, 'center', 'bottom', true, [0 7]);
-                uialign(obj.UIActions, obj.Root, 'fill', 'bottom', true, [0 7]);
+                for i = 1 : length(obj.UIActions)
+                    obj.UIActions(i).Position(3) = obj.calcTextSize(obj.UIActions(i));
+                end
+                uialign(obj.UIActions, obj.Root, 'center', 'bottom', true, [0 7], 'HorDist', 7);
             end
         end
         
