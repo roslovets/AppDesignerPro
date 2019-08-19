@@ -1,4 +1,4 @@
-function pos = uialign(objects, refobj, horalign, vertalign, ischild, offset)
+function pos = uialign(objects, refobj, horalign, varargin)
 %ALIGN Align uicontrols and axes.
 %   ALIGN(HandleList,HorizontalAlignment,VerticalAlignment) will
 %   align the objects in the handle list. Adding a left hand argument
@@ -39,43 +39,80 @@ function pos = uialign(objects, refobj, horalign, vertalign, ischild, offset)
 %       hlist2 = [u1 u2 u3];   
 %       align(hlist2,'distribute','bottom');
 
-if nargin < 4
-    vertalign = '';
-end
-if nargin < 5
-    ischild = false;
-end
-if nargin < 6
-    offset = [];
-end
-if isgraphics(refobj)
-    refpos = get(refobj, 'Position');
+p = inputParser();
+p.addRequired('objects');
+p.addRequired('refobj');
+p.addRequired('horalign');
+p.addOptional('vertalign', '', @(x)ischar(x)||isstring(x));
+p.addOptional('ischild', false);
+p.addOptional('offset', [0 0]);
+p.addParameter('HorDist', 'none');
+p.addParameter('VertDist', 'none');
+p.parse(objects, refobj, horalign, varargin{:});
+args = p.Results;
+
+if isgraphics(args.refobj)
+    refpos = get(args.refobj, 'Position');
 else
-    refpos = refobj;
+    refpos = args.refobj;
 end
-if ischild
+if args.ischild
     refpos = [0 0 refpos([3 4])];
 end
-if ~isempty(objects) & all(ishghandle(objects)) %#ok<AND2>
+if ~isempty(args.objects) & all(ishghandle(args.objects)) %#ok<AND2>
     setpos = true;
-    pos = get(objects, {'Position'});
+    pos = get(args.objects, {'Position'});
 else
     setpos = false;
-    pos = objects;
+    pos = args.objects;
 end
 if iscell(pos)
     pos = vertcat(pos{:});
 end
-hpos = calcPos(pos, refpos, 1, horalign);
-vpos = calcPos(pos, refpos, 2, vertalign);
-pos = [hpos(:,1) vpos(:,2) hpos(:,3) vpos(:,4)];
-if ~isempty(offset)
-    pos(:, [1 2]) = pos(:, [1 2]) + offset;
+[hpos, isdist] = calcDist(pos, refpos, 1, args);
+if ~isdist
+    hpos = calcPos(pos, refpos, 1, args.horalign);
 end
+[vpos, isdist] = calcDist(pos, refpos, 2, args);
+if ~isdist
+    vpos = calcPos(pos, refpos, 2, args.vertalign);
+end
+pos = [hpos(:,1) vpos(:,2) hpos(:,3) vpos(:,4)];
+pos(:, [1 2]) = pos(:, [1 2]) + args.offset;
 if setpos
-    set(objects, {'Position'}, num2cell(pos, 2));
+    set(args.objects, {'Position'}, num2cell(pos, 2));
 end
 
+function [pos, isdist] = calcDist(pos, refpos, dim, args)
+%% Calculate distribution
+if size(pos, 1) > 1
+    isdist = true;
+else
+    isdist = false;
+end
+if isdist
+    if dim == 1
+        dist = args.HorDist;
+    elseif dim == 2
+        dist = args.VertDist;
+    end
+    if ~isnumeric(dist)
+        switch dist
+            case "none"
+                isdist = false;
+            case "auto"
+                dist = floor((refpos(dim+2) - sum(pos(:, dim+2))) / (size(pos, 1)-1));
+        end
+    end
+    if isdist
+        ps = [0; pos(1:end-1, dim+2) + dist];
+        pos(:, dim) = refpos(dim) + cumsum(ps);
+        gpos = [pos(1, [1 2]), pos(end, [1 2]) + pos(end, [3 4]) - pos(1, [1 2])];
+        gpos1 = uialign(gpos, refpos, args.horalign, args.vertalign, true);
+        posd = gpos1 - gpos;
+        pos(:, [1 2]) = pos(:, [1 2]) + posd([1 2]);
+    end
+end
 
 function pos = calcPos(pos, refpos, dim, alignment)
 %% Calculate aligned positions
@@ -101,8 +138,13 @@ if ~isempty(alignment)
                 pos(:, dim+[0 2]) = repmat(refpos(:, dim+[0 2]), size(pos, 1), 1);
             case 5
                 sumpos = sum(pos(:, 3));
-                gap = floor((refpos(3) - sumpos) / size(pos, 1));
-                ws = [0; pos(1:end-1, 3)] + gap;
+                num = size(pos, 1);
+                if num > 1
+                    gap = floor((refpos(3) - sumpos) / (num-1));
+                else
+                    gap = 0;
+                end
+                ws = [0; pos(1:end-1, 3) + gap];
                 pos(:, 1) = refpos(1) + cumsum(ws);
         end
     end
