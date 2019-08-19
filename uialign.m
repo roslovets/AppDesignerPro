@@ -48,11 +48,16 @@ p.addOptional('ischild', false);
 p.addOptional('offset', [0 0]);
 p.addParameter('HorDist', 'none');
 p.addParameter('VertDist', 'none');
+p.addParameter('Scrollable', false);
 p.parse(objects, refobj, horalign, varargin{:});
 args = p.Results;
 
+scrollable = args.Scrollable;
 if isgraphics(args.refobj)
     refpos = get(args.refobj, 'Position');
+    if isprop(args.refobj, 'Scrollable') && ismember('Scrollable', p.UsingDefaults)
+        scrollable = get(args.refobj, 'Scrollable') == "on";
+    end
 else
     refpos = args.refobj;
 end
@@ -76,6 +81,14 @@ end
 [vpos, isdist] = calcDist(pos, refpos, 2, args);
 if ~isdist
     vpos = calcPos(pos, refpos, 2, args.vertalign);
+end
+if args.ischild && scrollable && size(pos, 1) > 1
+    if hpos(1, 1) < 0
+        hpos(:, 1) = hpos(:, 1) - hpos(1, 1);
+    end
+    if vpos(1, 2) < 0
+        vpos(:, 2) = vpos(:, 2) - vpos(1, 2);
+    end
 end
 pos = [hpos(:,1) vpos(:,2) hpos(:,3) vpos(:,4)];
 pos(:, [1 2]) = pos(:, [1 2]) + args.offset;
