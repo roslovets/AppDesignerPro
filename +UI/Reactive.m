@@ -154,16 +154,18 @@ classdef Reactive < handle
         
         function data = convert(obj, data, to)
             %% Get variable type
-            from = class(data);
-            if ~strcmp(from, to)
-                conv = obj.ConvRules{from, to}{1};
-                if isempty(conv)
-                    error('Unsupported conversion from %s to %s', from, to);
+            if ~isempty(to)
+                from = class(data);
+                if ~strcmp(from, to)
+                    conv = obj.ConvRules{from, to}{1};
+                    if isempty(conv)
+                        error('Unsupported conversion from %s to %s', from, to);
+                    end
+                    if isstring(data) && (ismissing(data) || data == "<missing>")
+                        data = "";
+                    end
+                    data = conv(data);
                 end
-                if isstring(data) && (ismissing(data) || data == "<missing>")
-                    data = "";
-                end
-                data = conv(data);
             end
         end
         
