@@ -99,17 +99,21 @@ classdef ReactiveTable < UI.Reactive
         function newRow(obj, varargin)
             %% Add new row to Table
             data = obj.readData();
-            newrow = repmat({''}, 1, width(data));
-            for i = 1 : length(newrow)
-                newrow{i} = obj.convert(newrow{i}, obj.getVarType(i));
-            end
-            data = [data; newrow];
-            if ~isempty(varargin)
-                for i = 1 : 2 : length(varargin)
-                    var = varargin{i};
-                    value = varargin{i+1};
-                    data{end, var} = obj.convert(value, obj.getVarType(var));
+            if istable(data) && ~isempty(data.Properties.VariableNames)
+                newrow = repmat({''}, 1, width(data));
+                for i = 1 : length(newrow)
+                    newrow{i} = obj.convert(newrow{i}, obj.getVarType(i));
                 end
+                data = [data; newrow];
+                if ~isempty(varargin)
+                    for i = 1 : 2 : length(varargin)
+                        var = varargin{i};
+                        value = varargin{i+1};
+                        data{end, var} = obj.convert(value, obj.getVarType(var));
+                    end
+                end
+            else
+                data = struct2table(struct(varargin{:}), 'AsArray', true);
             end
             obj.writeData(data);
             obj.redraw();

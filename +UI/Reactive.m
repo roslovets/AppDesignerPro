@@ -82,7 +82,9 @@ classdef Reactive < handle
                 switch guiClass
                     case "matlab.ui.control.Table"
                         set(guiObj, 'Data', data);
-                        set(guiObj, 'ColumnName', data.Properties.VariableNames);
+                        if istable(data)
+                            set(guiObj, 'ColumnName', data.Properties.VariableNames);
+                        end
                     case "matlab.ui.control.TextArea"
                         value = obj.convert(data, class(get(guiObj, 'Value')));
                         if isempty(value)
