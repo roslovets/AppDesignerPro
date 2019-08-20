@@ -20,9 +20,11 @@ classdef ReactiveTable < UI.Reactive
         function setVariables(obj)
             %% Set variables types
             data = obj.readData();
-            ts = varfun(@(x) string(class(x)), data);
-            ts.Properties.VariableNames = data.Properties.VariableNames;
-            obj.VarType = ts;
+            if istable(data) && ~isempty(data)
+                ts = varfun(@(x) string(class(x)), data);
+                ts.Properties.VariableNames = data.Properties.VariableNames;
+                obj.VarType = ts;
+            end
         end
         
         function redraw(obj)
@@ -68,6 +70,18 @@ classdef ReactiveTable < UI.Reactive
                     else
                         val = data{obj.Selection.Row, varname};
                     end
+                end
+            end
+        end
+        
+        function set(obj, varname, value)
+            %% Set value to selected row of specified variable
+            if ~isempty(obj.Selection)
+                data = obj.readData();
+                if obj.Selection.Row <= height(data)
+                    data{obj.Selection.Row, varname} = value;
+                    obj.writeData(data);
+                    obj.redraw();
                 end
             end
         end
@@ -208,13 +222,17 @@ classdef ReactiveTable < UI.Reactive
         
         function type = getVarType(obj, var)
             %% Get Table variable type
-            if isnumeric(var)
-                data = obj.readData();
-                varname = data.Properties.VariableNames{var};
+            if ~isempty(obj.VarType)
+                if isnumeric(var)
+                    data = obj.readData();
+                    varname = data.Properties.VariableNames{var};
+                else
+                    varname = var;
+                end
+                type = obj.VarType.(varname){1};
             else
-                varname = var;
+                type = '';
             end
-            type = obj.VarType.(varname){1};
         end
         
         
