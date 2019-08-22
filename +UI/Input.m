@@ -13,7 +13,8 @@ classdef Input < handle
         Transparent
         Width
         Height
-        FieldsGap = 50
+        OkText
+        CancelText
         BtnWidth = 75
         Ok = false
         Wait
@@ -29,6 +30,8 @@ classdef Input < handle
             p.addParameter('Title', '', @(x)ischar(x)||isstring(x));
             p.addParameter('Width', 200);
             p.addParameter('Transparent', false);
+            p.addParameter('OkText', 'OK', @(x)ischar(x)||isstring(x));
+            p.addParameter('CancelText', 'Cancel', @(x)ischar(x)||isstring(x));
             p.addParameter('Wait', true);
             p.addParameter('Show', true);
             p.parse(varargin{:});
@@ -41,6 +44,8 @@ classdef Input < handle
             obj.Title = args.Title;
             obj.Width = args.Width;
             obj.Transparent = args.Transparent;
+            obj.OkText = args.OkText;
+            obj.CancelText = args.CancelText;
             obj.Fields = cell2table(cell(0, 2), 'VariableNames', {'title' 'value'});
             obj.addFields(args.titles, args.values);
             obj.Wait = args.Wait;
@@ -104,11 +109,11 @@ classdef Input < handle
             panel = obj.UIOverlay.UIPanel;
             refpos = [0 0 obj.Width obj.Height];
             obj.drawFields(panel);
-            cbtn = uibutton(panel, 'Text', 'Cancel', 'ButtonPushedFcn', @obj.close);
+            cbtn = uibutton(panel, 'Text', obj.CancelText, 'ButtonPushedFcn', @obj.close);
             cbtnpos = cbtn.Position;
             cbtnpos(3) = obj.BtnWidth;
             cbtn.Position = uialign(cbtnpos, refpos, 'right', 'bottom', true, [-7 7]);
-            okbtn = uibutton(panel, 'Text', 'OK', 'ButtonPushedFcn', @(~,~)obj.apply());
+            okbtn = uibutton(panel, 'Text', obj.OkText, 'ButtonPushedFcn', @(~,~)obj.apply());
             okbtnpos = okbtn.Position;
             okbtnpos(3) = obj.BtnWidth;
             okbtn.Position = uialign(okbtnpos, cbtn, 'right', 'same', false, [-(obj.BtnWidth+5) 0]);
@@ -152,6 +157,7 @@ classdef Input < handle
                 end
                 obj.UIFields = [obj.UIFields; f];
             end
+            obj.UIFields = flipud(obj.UIFields);
         end
         
         function delete(obj)
