@@ -5,6 +5,7 @@ classdef Overlay < handle
     properties
         UIFigure
         UIPanel
+        Title
         Root
         Height
         Width
@@ -16,6 +17,7 @@ classdef Overlay < handle
             %% Constructor
             p = inputParser();
             p.addOptional('uifig', []);
+            p.addParameter('Title', '', @(x)ischar(x)||isstring(x));
             p.addParameter('Height', 100);
             p.addParameter('Width', 200);
             p.addParameter('BackgroundColor', [0.651 0.651 0.651]);
@@ -27,6 +29,7 @@ classdef Overlay < handle
             else
                 obj.UIFigure = args.uifig;
             end
+            obj.Title = args.Title;
             obj.Height = args.Height;
             obj.Width = args.Width;
             obj.BackgroundColor = args.BackgroundColor;
@@ -67,6 +70,9 @@ classdef Overlay < handle
             obj.UIPanel = uipanel(grid2);
             obj.UIPanel.Layout.Row = 2;
             obj.UIPanel.Layout.Column = 2;
+            if ~isempty(obj.Title)
+                obj.UIPanel.Title = obj.Title;
+            end
         end
         
         function yes = isVisible(obj)

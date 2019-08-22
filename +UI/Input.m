@@ -6,6 +6,8 @@ classdef Input < handle
         UIFigure
         UIOverlay
         UIFields
+        UILabels
+        Title
         Fields
         Values
         Transparent
@@ -14,6 +16,7 @@ classdef Input < handle
         FieldsGap = 50
         BtnWidth = 75
         Ok = false
+        Wait
     end
     
     methods
@@ -22,9 +25,11 @@ classdef Input < handle
             p = inputParser();
             p.addOptional('uifig', []);
             p.addOptional('titles', 'Enter value', @(s)isstring(s)||ischar(s)||iscellstr(s));
-            p.addOptional('values', '', @(s)isstring(s)||ischar(s)||iscellstr(s));
+            p.addOptional('values', '', @(x)iscell(x)||ischar(x)||isstring||islogical(x));
+            p.addParameter('Title', '', @(x)ischar(x)||isstring(x));
             p.addParameter('Width', 200);
             p.addParameter('Transparent', false);
+            p.addParameter('Wait', true);
             p.addParameter('Show', true);
             p.parse(varargin{:});
             args = p.Results;
@@ -33,10 +38,12 @@ classdef Input < handle
             else
                 obj.UIFigure = args.uifig;
             end
+            obj.Title = args.Title;
             obj.Width = args.Width;
             obj.Transparent = args.Transparent;
             obj.Fields = cell2table(cell(0, 2), 'VariableNames', {'title' 'value'});
             obj.addFields(args.titles, args.values);
+            obj.Wait = args.Wait;
             if args.Show
                 obj.show();
             end
@@ -45,13 +52,17 @@ classdef Input < handle
         function show(obj)
             %% Show input
             obj.UIOverlay.show();
-            uiwait(obj.UIFigure);
+            if obj.Wait
+                uiwait(obj.UIFigure);
+            end
         end
         
         function addFields(obj, labels, values)
             %% Add field to input form
             labels = cellstr(labels);
-            values = cellstr(values);
+            if isstring(values) || ischar(values)
+                values = cellstr(values);
+            end
             obj.Fields = [obj.Fields; [labels(:) values(:)]];
             obj.redraw();
         end
@@ -74,14 +85,22 @@ classdef Input < handle
             if ~isempty(obj.UIOverlay) && isvalid(obj.UIOverlay)
                 delete(obj.UIOverlay);
             end
-            obj.Height = 40 + height(obj.Fields) * obj.FieldsGap;
+            if iscell(obj.Fields.value)
+                lblnum = nnz(~cellfun(@(x)islogical(x) || isnumeric(x), obj.Fields.value));
+            else
+                lblnum = 0;
+            end
+            obj.Height = 40 + height(obj.Fields) * 30 + lblnum * 20;
+            if ~isempty(obj.Title)
+                obj.Height = obj.Height + 20;
+            end
             if obj.Transparent
                 args = {'BackgroundColor', 'none'};
             else
                 args = {};
             end
             obj.UIOverlay = UI.Overlay(obj.UIFigure, 'Width', obj.Width,...
-                'Height', obj.Height, 'Show', false, args{:});
+                'Height', obj.Height, 'Show', false, 'Title', obj.Title, args{:});
             panel = obj.UIOverlay.UIPanel;
             refpos = [0 0 obj.Width obj.Height];
             obj.drawFields(panel);
@@ -98,20 +117,39 @@ classdef Input < handle
         function f = drawFields(obj, parent)
             %% Add field to input
             refpos = [0 0 obj.Width obj.Height];
-            fields = obj.Fields;
+            fields = flipud(obj.Fields);
             for i = 1 : height(fields)
                 title = fields.title{i};
-                value = fields.value{i};
-                f = uieditfield(parent, 'Value', value);
-%                 f = uicheckbox(parent);
+                if iscell(fields.value)
+                    value = fields.value{i};
+                else
+                    value = fields.value(i);
+                end
+                chb = islogical(value) || isnumeric(value);
+                if ~chb
+                    f = uieditfield(parent, 'Value', value);
+                else
+                    f = uicheckbox(parent, 'Value', value, 'Text', title);
+                end
                 inppos = f.Position;
                 inppos(3) = refpos(3) - 14;
-                inpoffset = [0, (height(fields)+1-i) * obj.FieldsGap - 10];
-                f.Position = uialign(inppos, refpos, 'center', 'bottom', false, inpoffset);
-                lbl = uilabel(parent, 'Text', title);
-                lbl.Position(3) = refpos(3) - 5*2;
-                lbloffset = [0 inppos(4)];
-                uialign(lbl, f.Position, 'left', 'center', false, lbloffset);
+                if i == 1
+                    f.Position = uialign(inppos, refpos, 'center', 'bottom', false, [0 40]);
+                else
+                    if class(obj.UIFields(end)) == "matlab.ui.control.CheckBox"
+                        offsety = 30;
+                    else
+                        offsety = 50;
+                    end
+                    f.Position = uialign(inppos, obj.UIFields(i-1), 'left', 'top', false, [0 offsety]);
+                end
+                if ~chb
+                    lbl = uilabel(parent, 'Text', title);
+                    lbl.Position(3) = refpos(3) - 5*2;
+                    lbloffset = [0 inppos(4)];
+                    uialign(lbl, f.Position, 'left', 'center', false, lbloffset);
+                    obj.UILabels = [obj.UILabels; lbl];
+                end
                 obj.UIFields = [obj.UIFields; f];
             end
         end
