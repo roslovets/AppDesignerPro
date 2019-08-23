@@ -1,32 +1,47 @@
 function pos = uialign(objects, refobj, horalign, varargin)
-%ALIGN Align uicontrols and axes.
-%   ALIGN(HandleList,HorizontalAlignment,VerticalAlignment) will
-%   align the objects in the handle list. Adding a left hand argument
-%   will cause the updated positions of the objects to be returned while
-%   the position of the objects on the figure does not change.
-%   Calling the alignment tool with
-%   Positions=ALIGN(CurPositions,HorizontalAlignment,VerticalAlignment)
-%   will return the updated position matrix from the initial position
-%   matrix.
+%UIALIGN Align uicontrols and uifigures.
 %
-%   Possible values for HorizontalAlignment are:
-%     None, Left, Center, Right, Distribute, Fixed
+%   UIALIGN(HandleList, HandleRef, HorAlignment)
+%   UIALIGN(HandleList, HandleRef, HorAlignment, VertAlignment)
+%   UIALIGN(__, isChild)
+%   UIALIGN(__, isChild, offset)
+%   UIALIGN(__, Name, Value)
+%   Positions = UIALIGN(__)
+%   Positions = UIALIGN(CurPositions, RefPosition, __)
 %
-%   Possible values for VerticalAlignment are:
-%     None, Top, Middle, Bottom, Distribute, Fixed
+%   UIALIGN(HandleList, HandleRef, HorAlignment, VertAlignment) will
+%   align the objects in the handle list to the reference object.
 %
-%   All alignment options will align the objects within the
-%   bounding box that encloses the objects.  Distribute and Fixed
-%   will align objects to the bottom left of the bounding box. Distribute,
-%   evenly distributes the objects, while Fixed distributes the objects
-%   with a fixed distance (in points) between them.
+%   Positions = UIALIGN(HandleList, HandleRef, HorAlignment, VertAlignment)
+%   will also return new positions of HandleList objects
 %
-%   If Fixed is used for HorizontalAlignment or VerticalAlignment, then
-%   the distance must be passed in as an extra argument:
-%   
-%   ALIGN(HandleList,'Fixed',Distance,VerticalAlignment)
-%   ALIGN(HandleList,HorizontalAlignment,'Fixed',Distance)
-%   ALIGN(HandleList,'Fixed',HorizontalDistance,'Fixed',VerticalDistance)
+%   Also you can pass positions insted of object handles just for
+%   calculation of new positions
+%   Positions = UIALIGN(CurPositions, RefPosition, HorAlignment, VertAlignment)
+%
+%   Possible values for HorAlignment are:
+%     '', 'left', 'center', 'right', 'same'
+%
+%   Possible values for VertAlignment are:
+%     '', 'bottom', 'center', 'top', 'same'
+%
+%   If you specify isChild (default: false) as true objects will be positioned inside
+%   reference object
+%   UIALIGN(__, true)
+%
+%   Uptionally you can shift calculated positions for offset (default: [0 0]), i.e.
+%   UIALIGN(__, true, [5 10])
+%
+%   If you want to distribute objects horizontally use 'HorDist' parameter,
+%   if you want to distribute objects vertically use 'VertDist' parameter
+%   Valid values for 'HorDist' and 'VertDist':
+%       pixels (numeric scalar), 'auto', 'none' (defalut)
+%
+%   If you want to distribute objects in scrollable parent specify
+%   'Scrollable' parameter as true
+%
+%   Author: Pavel Roslovets, ETMC Exponenta
+%           https://roslovets.github.io
 %
 %   Example:
 %       f=figure;
@@ -36,8 +51,10 @@ function pos = uialign(objects, refobj, horalign, varargin)
 %           [150 250 100 100],'string','button2');
 %       u3 = uicontrol('Style','push', 'parent', f,'pos',...
 %           [250 100 100 100],'string','button3');
-%       hlist2 = [u1 u2 u3];   
-%       align(hlist2,'distribute','bottom');
+%       uialign([u1 u2], u3, '', 'bottom');
+%       uialign([u1 u2], u3, '', 'bottom', false, [50 0]);
+%       uialign([u1 u2 u3], f, 'center', 'center', true, 'HorDist', 5);
+%       uialign([u1 u2 u3], f, 'center', 'bottom', true, 'HorDist', 'auto');
 
 p = inputParser();
 p.addRequired('objects');
@@ -130,8 +147,8 @@ end
 function pos = calcPos(pos, refpos, dim, alignment)
 %% Calculate aligned positions
 alignment = lower(char(alignment));
-alignlist = ["left" "center" "right" "same" "fill"
-             "bottom" "center" "top" "same" "fill"];
+alignlist = ["left" "center" "right" "same"
+             "bottom" "center" "top" "same"];
 dimlist = ["Horizontal" "Vertical"];
 if ~isempty(alignment)
     alnum = find(alignlist(dim, :) == alignment);
@@ -149,16 +166,6 @@ if ~isempty(alignment)
                 pos(:,dim) = refpos(1,dim) + (refpos(1,dim+2) - pos(:,dim+2));
             case 4
                 pos(:, dim+[0 2]) = repmat(refpos(:, dim+[0 2]), size(pos, 1), 1);
-            case 5
-                sumpos = sum(pos(:, 3));
-                num = size(pos, 1);
-                if num > 1
-                    gap = floor((refpos(3) - sumpos) / (num-1));
-                else
-                    gap = 0;
-                end
-                ws = [0; pos(1:end-1, 3) + gap];
-                pos(:, 1) = refpos(1) + cumsum(ws);
         end
     end
 end

@@ -1,5 +1,23 @@
 function [color, fontcolor] = uitheme(theme)
-%% Get theme colors
+%Get theme colors
+%   Generate background color and font color for specified theme
+%
+%   [color, fontcolor] = UITHEME(theme)
+%
+%   theme: char | string - name of the theme. Select theme from the list:
+%           'none','none','dark','light','success','info','warning','danger
+%
+%   color: 3-element vector of RGB values - background color
+%   fontcolor: 3-element vector of RGB values - font color
+%
+%   Example:
+%       f = uifigure('Color', uitheme('dark'));
+%       [c, fc] = uitheme('success')
+%       b = uibutton(f,'Text','BUTTON','BackgroundColor',c,'FontColor',fc);
+%
+%   Author: Pavel Roslovets, ETMC Exponenta
+%           https://roslovets.github.io
+
 theme = lower(theme);
 switch theme
     case 'none'

@@ -1,23 +1,25 @@
 classdef Input < handle
-    %GUIINPUT Summary of this class goes here
-    %   Detailed explanation goes here
+    %% Show in uifigure input dialog with text edits and checkboxes
+    %   Allows to create input dialogs embedded in uifigures and apps
+    %   Author: Pavel Roslovets, ETMC Exponenta
+    %           https://roslovets.github.io
     
     properties
-        UIFigure
-        UIOverlay
-        UIFields
-        UILabels
-        Title
-        Fields
-        Values
-        Transparent
-        Width
-        Height
-        OkText
-        CancelText
-        BtnWidth = 75
-        Ok = false
-        Wait
+        UIFigure      % Parent uifigure
+        UIOverlay     % UI.Overlay object
+        UIFields      % Fields UI objects
+        UILabels      % UI lables for fields
+        Title         % Overlay title
+        Fields        % Fields labels and values
+        Values        % uiinput values
+        Transparent   % Transparent background
+        Width         % uiinput width
+        Height        % uiinput height
+        OkText        % Text of the OK button
+        CancelText    % Text of the Cancel button
+        BtnWidth = 75 % Width of buttons
+        Ok = false    % uiinput is applied
+        Wait          % pause MATLAB after call
     end
     
     methods
@@ -86,7 +88,7 @@ classdef Input < handle
         end
         
         function redraw(obj)
-            %% Initialize Body
+            %% Redraw UI objects
             if ~isempty(obj.UIOverlay) && isvalid(obj.UIOverlay)
                 delete(obj.UIOverlay);
             end
