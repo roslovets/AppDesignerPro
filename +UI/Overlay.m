@@ -1,15 +1,17 @@
 classdef Overlay < handle
-    %GUIINPUT Summary of this class goes here
-    %   Detailed explanation goes here
+    %% Show empty dialog panel in uifigure
+    %   Allows to create custom dialogs embedded in uifigures and apps
+    %   Author: Pavel Roslovets, ETMC Exponenta
+    %           https://roslovets.github.io
     
     properties
-        UIFigure
-        UIPanel
-        Title
-        Root
-        Height
-        Width
-        BackgroundColor
+        UIFigure        % Parent uifigure
+        UIPanel         % Overlay uipanel
+        Title           % Overlay panel title
+        Root            % UI root of overlay
+        Height          % Overlay dialog height
+        Width           % Overlay dialog Width
+        BackgroundColor % Background color
     end
     
     methods
@@ -39,19 +41,18 @@ classdef Overlay < handle
             end
         end
         
-        
         function show(obj)
-            %% Show input
+            %% Show dialog
             obj.Root.Visible = 'on';
         end
         
         function hide(obj)
-            %% Show input
+            %% Hide dialog
             obj.Root.Visible = 'off';
         end
         
         function redraw(obj)
-            %% Initialize Body
+            %% Initialize UI
             if ~isempty(obj.Root) && isvalid(obj.Root)
                 delete(obj.Root);
             end

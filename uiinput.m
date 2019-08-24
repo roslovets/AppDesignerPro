@@ -8,7 +8,7 @@ function varargout = uiinput(varargin)
 %   inp = UIINPUT(__, Name, Value)
 %   h = UIINPUT(__, 'Show', false)
 %
-%   uifig: uifigure object or another parent UI container)
+%   uifig: uifigure object or another parent UI container
 %   label: char array - label of the input
 %   labels: cell string | string array - labels if the inputs
 %   values: cell array of chars or logicals - predefined values of

@@ -1,5 +1,5 @@
 classdef Input < handle
-    %% Show in uifigure input dialog with text edits and checkboxes
+    %% Show input dialog with text edits and checkboxes in uifigure
     %   Allows to create input dialogs embedded in uifigures and apps
     %   Author: Pavel Roslovets, ETMC Exponenta
     %           https://roslovets.github.io
