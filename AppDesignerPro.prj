@@ -6,7 +6,7 @@
     <param.company>ETMC Exponenta</param.company>
     <param.summary>UI elements for professional apps</param.summary>
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\appdesignerpro-cover.png</param.screenshot>
     <param.version>0.1</param.version>
     <param.output>${PROJECT_ROOT}\App Designer Pro.mltbx</param.output>
     <param.products.name />
@@ -52,7 +52,6 @@ installweb.m</param.exclude.filters>
       <param.email />
       <param.company />
       <param.description />
-      <param.screenshot />
       <param.output />
       <param.products.name />
       <param.products.id />
@@ -88,6 +87,7 @@ installweb.m</param.exclude.filters>
       <file>${PROJECT_ROOT}\+UI</file>
       <file>${PROJECT_ROOT}\.git</file>
       <file>${PROJECT_ROOT}\.gitignore</file>
+      <file>${PROJECT_ROOT}\appdesignerpro-cover.png</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.mltbx</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.prj</file>
       <file>${PROJECT_ROOT}\AppDesignerProDev.m</file>
