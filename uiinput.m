@@ -8,6 +8,7 @@ function varargout = uiinput(varargin)
 %   inp = UIINPUT(__, Name, Value)
 %   h = UIINPUT(__, 'Show', false)
 %
+%   Inputs:
 %   uifig: uifigure object or another parent UI container
 %   label: char array - label of the input
 %   labels: cell string | string array - labels if the inputs
@@ -23,6 +24,10 @@ function varargout = uiinput(varargin)
 %   'CancelText': char | string - Text of the Cancel button (default: 'Cancel')
 %   'Wait': logical - pause execution while input dialog is opened (default: true)
 %   'Show': logical - open input dialog immediately (default: true)
+%
+%   Outputs:
+%   inp: cell | char | logical - uiinput values
+%   h: Input - UI.Input object
 %
 %   Example 1:
 %       i = uiinput(uifigure, {'Enter text' 'Check'}, {'' false}, 'Width', 300);

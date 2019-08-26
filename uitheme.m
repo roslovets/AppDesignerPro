@@ -4,9 +4,11 @@ function [color, fontcolor] = uitheme(theme)
 %
 %   [color, fontcolor] = UITHEME(theme)
 %
+%   Inputs:
 %   theme: char | string - name of the theme. Select theme from the list:
 %           'none','none','dark','light','success','info','warning','danger
 %
+%   Outputs:
 %   color: 3-element vector of RGB values - background color
 %   fontcolor: 3-element vector of RGB values - font color
 %
