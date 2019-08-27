@@ -20,8 +20,7 @@
     <param.exclude.filters>.git
 .gitignore
 **/*.asv
-dev_on.m
-AppDesignerProDev.m
+dev
 install.m
 installweb.m</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
