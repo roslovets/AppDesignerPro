@@ -4,10 +4,13 @@
     <param.authnamewatermark>Pavel Roslovets</param.authnamewatermark>
     <param.email>roslovets@exponenta.ru</param.email>
     <param.company>ETMC Exponenta</param.company>
-    <param.summary>UI elements for professional apps</param.summary>
-    <param.description />
+    <param.summary>UI library for professional apps building</param.summary>
+    <param.description>Improve your apps with new features:
+- Input dialogs and snackbars
+- Animation, UI alignment and themes
+- Easily create reactive interfaces</param.description>
     <param.screenshot>${PROJECT_ROOT}\appdesignerpro-cover.png</param.screenshot>
-    <param.version>0.1</param.version>
+    <param.version>0.2</param.version>
     <param.output>${PROJECT_ROOT}\App Designer Pro.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -51,7 +54,6 @@ installweb.m</param.exclude.filters>
       <param.authnamewatermark />
       <param.email />
       <param.company />
-      <param.description />
       <param.output />
       <param.products.name />
       <param.products.id />
@@ -90,23 +92,19 @@ installweb.m</param.exclude.filters>
       <file>${PROJECT_ROOT}\appdesignerpro-cover.png</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.mltbx</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.prj</file>
-      <file>${PROJECT_ROOT}\AppDesignerProDev.m</file>
       <file>${PROJECT_ROOT}\AppDesignerProExtender.m</file>
+      <file>${PROJECT_ROOT}\AppDesignerProProject.prj</file>
       <file>${PROJECT_ROOT}\AppDesignerProUpdater.m</file>
-      <file>${PROJECT_ROOT}\dev_on.m</file>
+      <file>${PROJECT_ROOT}\dev</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\examples</file>
-      <file>${PROJECT_ROOT}\GUITree.m</file>
+      <file>${PROJECT_ROOT}\functions</file>
       <file>${PROJECT_ROOT}\info.xml</file>
       <file>${PROJECT_ROOT}\install.m</file>
       <file>${PROJECT_ROOT}\installweb.m</file>
       <file>${PROJECT_ROOT}\README.md</file>
+      <file>${PROJECT_ROOT}\resources</file>
       <file>${PROJECT_ROOT}\ToolboxConfig.xml</file>
-      <file>${PROJECT_ROOT}\uialign.m</file>
-      <file>${PROJECT_ROOT}\uiinput.m</file>
-      <file>${PROJECT_ROOT}\uioverlay.m</file>
-      <file>${PROJECT_ROOT}\uisnackbar.m</file>
-      <file>${PROJECT_ROOT}\uitheme.m</file>
     </fileset.rootfiles>
     <fileset.depfun.included />
     <fileset.depfun.excluded>

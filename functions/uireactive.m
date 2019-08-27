@@ -1,0 +1,7 @@
+function r = uireactive(varargin)
+%Reactive UI object
+%   Binds data with UI elements
+%   Documentation is under development, please examine examples: uiexample
+r = UI.Reactive(varargin{:});
+end
+
