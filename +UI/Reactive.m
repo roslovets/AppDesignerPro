@@ -103,8 +103,12 @@ classdef Reactive < handle
                                 value = limits(2);
                             end
                         end
-                        if ischar(value) && isempty(value)
-                            value = '';
+                        if isempty(value)
+                            if islogical(value)
+                                value = false;
+                            elseif ischar(value)
+                                value = '';
+                            end
                         end
                         set(guiObj, 'Value', value);
                 end
