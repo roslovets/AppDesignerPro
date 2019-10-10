@@ -52,7 +52,7 @@ classdef ReactiveTable < UI.Reactive
             else
                 obj.Selection = [];
             end
-            obj.redraw();
+            %obj.redraw();
             obj.redrawVars();
         end
         
