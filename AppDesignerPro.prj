@@ -10,7 +10,7 @@
 - Animation, UI alignment and themes
 - Easily create reactive interfaces</param.description>
     <param.screenshot>${PROJECT_ROOT}\appdesignerpro-cover.png</param.screenshot>
-    <param.version>0.1.1</param.version>
+    <param.version>0.2.0</param.version>
     <param.output>${PROJECT_ROOT}\App Designer Pro.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -22,7 +22,9 @@
 **/*.asv
 dev
 install.m
-installweb.m</param.exclude.filters>
+installweb.m
+dev_on.m
+AppDesignerProDev.m</param.exclude.filters>
     <param.exclude.pcodedmfiles>true</param.exclude.pcodedmfiles>
     <param.examples />
     <param.demosxml />

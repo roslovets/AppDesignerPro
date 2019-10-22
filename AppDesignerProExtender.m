@@ -120,7 +120,11 @@ classdef AppDesignerProExtender < handle
                     name = 'GettingStarted';
                 end
                 if ~any(endsWith(name, {'.mlx' '.html'}))
-                    name = name + ".html";
+                    if computer == "GLNXA64" %% Linux and MATLAB Online
+                        name = name + ".mlx";
+                    else
+                        name = name + ".html";
+                    end
                 end
                 docpath = fullfile(docdir, name);
                 if endsWith(name, '.html')
@@ -150,8 +154,9 @@ classdef AppDesignerProExtender < handle
             nfav.setCategoryLabel(obj.name);
             nfav.setCode(code);
             if nargin > 3
-                nfav.setIconPath(obj.root);
-                nfav.setIconName(icon);
+                [ipath, iname, iext] = fileparts(icon);
+                nfav.setIconPath(fullfile(obj.root, ipath));
+                nfav.setIconName(iname + string(iext));
             end
             nfav.setIsOnQuickToolBar(true);
             favs.addCommand(nfav);
@@ -283,10 +288,10 @@ classdef AppDesignerProExtender < handle
         function name = getvalidname(obj, cname)
             % Get valid variable name
             name = char(obj.name);
-            name = name(isstrprop(name, 'alpha'));
             if nargin > 1
                 name = char(name + string(cname));
             end
+            name = matlab.lang.makeValidName(name);
         end
         
         function txt = readtxt(~, fpath)
