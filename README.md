@@ -15,7 +15,7 @@ Improve your apps with new features:
 
 MATLAB R2018b or later
 
-# Installation
+# How to install
 
 ## Install from internet (recommended)
 
@@ -32,6 +32,13 @@ Download and open [AppDesignerPro.mltbx](https://roslovets.github.io/ghbin/#rosl
 Download and unzip [project files](https://github.com/roslovets/AppDesignerPro/archive/master.zip), run installation script:
 ```MATLAB
 install
+```
+
+# How ot update
+
+To automatically update installed App Designer Pro to the latest version execute
+```MATLAB
+UI.update
 ```
 
 # Documentation
