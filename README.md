@@ -36,7 +36,7 @@ install
 
 # Documentation
 
-Execute:
+[Explore online](https://github.com/roslovets/AppDesignerPro/blob/master/doc/GettingStarted.pdf) or execute in MATLAB:
 ```MATLAB
 uidoc
 ```
