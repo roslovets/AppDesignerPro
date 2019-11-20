@@ -39,5 +39,5 @@ uidoc
 ```
 Open examples:
 ```MATLAB
-uiexample
+uiexamples
 ```
