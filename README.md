@@ -1,4 +1,7 @@
 # App Designer Pro
+
+![screenshot](https://github.com/roslovets/AppDesignerPro/raw/master/images/screenshot1.png)
+
 UI library for professional apps building
 
 # Description
