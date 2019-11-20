@@ -94,10 +94,12 @@ AppDesignerProDev.m</param.exclude.filters>
       <file>${PROJECT_ROOT}\appdesignerpro-cover.png</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.mltbx</file>
       <file>${PROJECT_ROOT}\AppDesignerPro.prj</file>
+      <file>${PROJECT_ROOT}\AppDesignerProDev.m</file>
       <file>${PROJECT_ROOT}\AppDesignerProExtender.m</file>
       <file>${PROJECT_ROOT}\AppDesignerProProject.prj</file>
       <file>${PROJECT_ROOT}\AppDesignerProUpdater.m</file>
       <file>${PROJECT_ROOT}\dev</file>
+      <file>${PROJECT_ROOT}\dev_on.m</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\examples</file>
       <file>${PROJECT_ROOT}\functions</file>

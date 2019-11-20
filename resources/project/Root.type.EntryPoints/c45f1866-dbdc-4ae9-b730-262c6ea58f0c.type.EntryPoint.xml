@@ -1,2 +1,2 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<Info Type="StartUp" Visible="0" Icon="" File="dev/dev_on.m" Name="dev_on" />
+<Info Type="StartUp" GroupUUID="b1daada8-84cf-4ba3-879f-d8424bd14d7b" Visible="1" Icon="" File="dev/dev_on.m" Name="1. Dev On" />
