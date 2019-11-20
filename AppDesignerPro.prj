@@ -9,7 +9,7 @@
 - Input dialogs and snackbars
 - Animation, UI alignment and themes
 - Easily create reactive interfaces</param.description>
-    <param.screenshot>${PROJECT_ROOT}\appdesignerpro-cover.png</param.screenshot>
+    <param.screenshot>${PROJECT_ROOT}\images\appdesignerpro-cover.png</param.screenshot>
     <param.version>0.2.0</param.version>
     <param.output>${PROJECT_ROOT}\App Designer Pro.mltbx</param.output>
     <param.products.name />
@@ -89,23 +89,13 @@ AppDesignerProDev.m</param.exclude.filters>
     </fileset.rootdir>
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}\+UI</file>
-      <file>${PROJECT_ROOT}\.git</file>
-      <file>${PROJECT_ROOT}\.gitignore</file>
-      <file>${PROJECT_ROOT}\appdesignerpro-cover.png</file>
-      <file>${PROJECT_ROOT}\AppDesignerPro.mltbx</file>
-      <file>${PROJECT_ROOT}\AppDesignerPro.prj</file>
-      <file>${PROJECT_ROOT}\AppDesignerProDev.m</file>
       <file>${PROJECT_ROOT}\AppDesignerProExtender.m</file>
-      <file>${PROJECT_ROOT}\AppDesignerProProject.prj</file>
       <file>${PROJECT_ROOT}\AppDesignerProUpdater.m</file>
-      <file>${PROJECT_ROOT}\dev</file>
-      <file>${PROJECT_ROOT}\dev_on.m</file>
       <file>${PROJECT_ROOT}\doc</file>
       <file>${PROJECT_ROOT}\examples</file>
       <file>${PROJECT_ROOT}\functions</file>
+      <file>${PROJECT_ROOT}\images</file>
       <file>${PROJECT_ROOT}\info.xml</file>
-      <file>${PROJECT_ROOT}\install.m</file>
-      <file>${PROJECT_ROOT}\installweb.m</file>
       <file>${PROJECT_ROOT}\README.md</file>
       <file>${PROJECT_ROOT}\resources</file>
       <file>${PROJECT_ROOT}\ToolboxConfig.xml</file>
