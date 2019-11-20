@@ -34,7 +34,7 @@ Download and unzip [project files](https://github.com/roslovets/AppDesignerPro/a
 install
 ```
 
-# How ot update
+# How to update
 
 To automatically update installed App Designer Pro to the latest version execute
 ```MATLAB
@@ -51,3 +51,7 @@ Open examples:
 ```MATLAB
 uiexamples
 ```
+
+# Other interesting projects
+
+[roslovets.github.io](https://roslovets.github.io)
