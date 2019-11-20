@@ -54,4 +54,4 @@ uiexamples
 
 # Other interesting projects
 
-[roslovets.github.io](https://roslovets.github.io)
+Check out [roslovets.github.io](https://roslovets.github.io)
