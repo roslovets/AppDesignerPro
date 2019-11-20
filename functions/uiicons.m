@@ -1,5 +1,5 @@
 function uiicons()
-% Open or download Icons Toolbox
+% Open Icons App or helps to download Icons Toolbox
 w = which('IconsApp');
 if ~isempty(w)
     IconsApp;

@@ -1,6 +1,7 @@
 classdef ReactiveTable < UI.Reactive
-    %UNTITLED2 Summary of this class goes here
-    %   Detailed explanation goes here
+    %% Create autoupdating reactive table strongly binded with data
+    %   Author: Pavel Roslovets, ETMC Exponenta
+    %           https://roslovets.github.io
     
     properties
         Table

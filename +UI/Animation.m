@@ -1,6 +1,7 @@
 classdef Animation < handle
-    %ANIMATION Summary of this class goes here
-    %   Detailed explanation goes here
+    %% Create animation of UI element
+    %   Author: Pavel Roslovets, ETMC Exponenta
+    %           https://roslovets.github.io
     
     properties
         UI

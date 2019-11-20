@@ -17,6 +17,8 @@ function [color, fontcolor] = uitheme(theme)
 %       [c, fc] = uitheme('success')
 %       b = uibutton(f,'Text','BUTTON','BackgroundColor',c,'FontColor',fc);
 %
+%   Example app: uithemeExample
+%
 %   Author: Pavel Roslovets, ETMC Exponenta
 %           https://roslovets.github.io
 

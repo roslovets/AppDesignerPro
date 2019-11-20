@@ -1,6 +1,7 @@
 classdef Snackbar < matlab.mixin.SetGet
-    %Summary of this class goes here
-    %   Detailed explanation goes here
+    %% Fancy snackbar of different types and colors
+    %   Author: Pavel Roslovets, ETMC Exponenta
+    %           https://roslovets.github.io
     
     properties
         UIFigure

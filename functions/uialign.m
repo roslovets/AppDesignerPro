@@ -55,6 +55,8 @@ function pos = uialign(objects, refobj, horalign, varargin)
 %       uialign([u1 u2], u3, '', 'bottom', false, [50 0]);
 %       uialign([u1 u2 u3], f, 'center', 'center', true, 'HorDist', 5);
 %       uialign([u1 u2 u3], f, 'center', 'bottom', true, 'HorDist', 'auto');
+%
+%   Example app: uialignExample
 
 p = inputParser();
 p.addRequired('objects');

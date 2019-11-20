@@ -38,6 +38,8 @@ function varargout = uiinput(varargin)
 %       h.redraw
 %       h.show
 %
+%   Example app: uiinputExample
+%
 %   Author: Pavel Roslovets, ETMC Exponenta
 %           https://roslovets.github.io
 
