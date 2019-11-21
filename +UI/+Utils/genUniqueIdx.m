@@ -1,5 +1,8 @@
-function [idx, newitem] = genUniqueIdx(items)
+function [idx, newitem] = genUniqueIdx(items, defname)
 % Generate unique idx from text items
+if nargin < 2
+    defname = "Item";
+end
 items = string(items);
 ns = regexp(items, '\d+', 'match');
 ns = vertcat(ns{:});
@@ -9,14 +12,15 @@ if isempty(nmax)
 end
 idx = nmax + 1;
 if nargout > 1
-    if isempty(items)
-        itemstxt = "Item";
+    if nargin > 1 || isempty(items)
+        itemname = defname;
     else
         if ~isempty(ns)
             itemstxt = strtrim(erase(items, ns));
         else
             itemstxt = items;
         end
+        itemname = string(mode(categorical(itemstxt)));
     end
-    newitem = string(mode(categorical(itemstxt))) + " " + idx;
+    newitem = itemname + " " + idx;
 end

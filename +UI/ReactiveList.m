@@ -7,6 +7,7 @@ classdef ReactiveList < UI.Reactive
         Selection
         GUIValue
         ItemsData
+        DefaultItemName = "Item"
     end
     
     methods
@@ -46,10 +47,28 @@ classdef ReactiveList < UI.Reactive
             val = guiObj.Value;
         end
         
-        function val = setValue(obj, value)
-            %% Get selected value
-%             for i = 1 : length(
-%             val = obj.GUI(1).Value;
+        function [items, vals] = getValues(obj, event)
+            %% Get all values
+            if nargin > 1
+                guiObj = event.Source;
+            else
+                guiObj = obj.GUI(1);
+            end
+            vals = get(guiObj, 'ItemsData');
+            items = get(guiObj, 'Items');
+        end
+        
+        function setValues(obj, items, vals, event)
+            %% Get all values
+            if nargin > 3
+                guiObj = event.Source;
+            else
+                guiObj = obj.GUI(1);
+            end
+            if ~isempty(guiObj.ItemsData)
+                obj.setData(vals);
+            end
+            obj.writeData(items);
         end
         
         function setData(obj, varargin)
@@ -99,33 +118,51 @@ classdef ReactiveList < UI.Reactive
             end
         end
         
-        function addItem(obj, items)
+        function addItem(obj, item, dataValue)
             %% Add new items to List
             data = obj.readData();
             data = string(data);
             data = data(:);
-            if nargin < 2
-                [~, items] = UI.Utils.genUniqueIdx(data);
+            if nargin < 2 || isempty(item)
+                [idx, item] = UI.Utils.genUniqueIdx(data, obj.DefaultItemName);
             else
-                items = string(items);
-                items = items(:);
+                item = string(item);
+                item = item(:);
             end
-            data = [data; items];
+            data = [data; item];
             obj.writeData(data);
+            if ~isempty(obj.ItemsData)
+                d = obj.ItemsData.readData{1};
+                d = d(:);
+                if nargin < 3
+                    dataValue = idx;
+                end
+                d = [d; dataValue];
+                obj.setData(d);
+            end
             obj.redraw();
         end
         
-        function deleteItem(obj, value)
+        function deleteItem(obj, val)
             %% Delete row from Table
             if nargin < 2
-                value = obj.getValue();
+                val = obj.getValue();
             end
-            if ~isempty(value)
-                data = obj.readData();
-                data = string(data);
-                data(data == value) = [];
-                obj.writeData(data);
+            if ~isempty(val)
+                [items, values] = obj.getValues();
+                if ischar(val) || iscellstr(val)
+                    val = string(val);
+                end
+                if ~isempty(values)
+                    idx = find(values == val);
+                    values(idx) = [];
+                else
+                    idx = find(items == val);
+                end
+                items(idx) = [];
+                obj.setValues(items, values);
                 obj.redraw();
+                obj.redrawValue();
             end
         end
         
