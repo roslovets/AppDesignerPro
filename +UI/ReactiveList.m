@@ -31,14 +31,25 @@ classdef ReactiveList < UI.Reactive
             obj.redrawValue();
         end
         
-        function select(obj)
+        function select(obj, varargin)
             %% Select item
-            obj.redrawValue();
+            obj.redrawValue(varargin{:});
         end
         
-        function val = getValue(obj)
+        function val = getValue(obj, event)
             %% Get selected value
-            val = obj.GUI(1).Value;
+            if nargin > 1
+                guiObj = event.Source;
+            else
+                guiObj = obj.GUI(1);
+            end
+            val = guiObj.Value;
+        end
+        
+        function val = setValue(obj, value)
+            %% Get selected value
+%             for i = 1 : length(
+%             val = obj.GUI(1).Value;
         end
         
         function setData(obj, varargin)
@@ -69,93 +80,83 @@ classdef ReactiveList < UI.Reactive
                     obj.GUIValue.GUIReact(idx(1)).update();
                 end
             end
+            obj.redrawValue();
         end
         
-        function redrawValue(obj)
+        function redrawValue(obj, varargin)
             %% Redraw Value GUI
             if ~isempty(obj.GUIValue)
                 for i = 1 : height(obj.GUIValue)
                     obj.GUIValue.GUIReact(i).redraw();
                 end
             end
+            value = obj.getValue(varargin{:});
+            guiN = length(obj.GUI);
+            if ~isempty(value) && guiN > 1
+                for i = 1 : guiN
+                    set(obj.GUI(i), 'Value', value);
+                end
+            end
         end
         
-        function newRow(obj, varargin)
-            %% Add new row to Table
+        function addItem(obj, items)
+            %% Add new items to List
             data = obj.readData();
-            if istable(data) && ~isempty(data.Properties.VariableNames)
-                newrow = repmat({''}, 1, width(data));
-                for i = 1 : length(newrow)
-                    newrow{i} = obj.convert(newrow{i}, obj.getVarType(i));
-                end
-                data = [data; newrow];
-                if ~isempty(varargin)
-                    for i = 1 : 2 : length(varargin)
-                        var = varargin{i};
-                        value = varargin{i+1};
-                        data{end, var} = obj.convert(value, obj.getVarType(var));
-                    end
-                end
+            data = string(data);
+            data = data(:);
+            if nargin < 2
+                [~, items] = UI.Utils.genUniqueIdx(data);
             else
-                data = struct2table(struct(varargin{:}), 'AsArray', true);
+                items = string(items);
+                items = items(:);
             end
+            data = [data; items];
             obj.writeData(data);
             obj.redraw();
-            obj.select([height(data) 1]);
         end
         
-        function deleteRow(obj, rownum)
+        function deleteItem(obj, value)
             %% Delete row from Table
             if nargin < 2
-                if ~isempty(obj.Selection)
-                    rownum = obj.Selection.Row;
-                else
-                    rownum = [];
-                end
+                value = obj.getValue();
             end
-            if ~isempty(rownum)
+            if ~isempty(value)
                 data = obj.readData();
-                if rownum <= height(data)
-                    data(rownum, :) = [];
-                    obj.writeData(data);
-                    obj.redraw();
-                end
-            end
-        end
-        
-        function moveRow(obj, step)
-            %% Move row by step
-            if ~isempty(obj.Selection)
-                data = obj.readData();
-                n = height(data);
-                idx1 = obj.Selection.Row;
-                idx2 = obj.Selection.Row + step;
-                if idx2 < 1
-                    idx2 = n;
-                elseif idx2 > n
-                    idx2 = 1;
-                end
-                if idx1 == 1 && idx2 == n
-                    data = data([2 : end, 1], :);
-                elseif idx1 == n && idx2 == 1
-                    data = data([end, 1 : end-1], :);
-                else
-                    data([idx1 idx2], :) = data([idx2 idx1], :);
-                end
+                data = string(data);
+                data(data == value) = [];
                 obj.writeData(data);
                 obj.redraw();
-                obj.Selection.Row = idx2;
             end
         end
         
-        function moveRowUp(obj)
-            %% Move row one step up
-            obj.moveRow(-1);
+        function moveItem(obj, step)
+            %% Move Item by step
+            value = obj.getValue();
+            if ~isempty(value)
+                data = obj.readData();
+                data = data(:);
+                idx1 = data == value;
+                data = UI.internal.moveRow(data, idx1, step);
+                obj.writeData(data);
+                obj.redraw();
+                obj.select();
+            end
         end
         
-        function moveRowDown(obj)
-            %% Move row one step down
-            obj.moveRow(1);
+        function moveItemUp(obj)
+            %% Move Item one step up
+            obj.moveItem(-1);
+        end
+        
+        function moveItemDown(obj)
+            %% Move Item one step down
+            obj.moveItem(1);
+        end
+        
+        function yes = isItem(obj, item)
+            %% Check Item exists
+            data = obj.readData();
+            yes = ismember(item, data);
         end
         
         
