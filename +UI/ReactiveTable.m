@@ -4,7 +4,6 @@ classdef ReactiveTable < UI.Reactive
     %           https://roslovets.github.io
     
     properties
-        Table
         Selection
         VarType
         ColumnName

@@ -117,7 +117,7 @@ classdef Reactive < handle
         end
         
         function update(obj, event)
-            %% Edit Table data from GUI
+            %% Edit Reactive data from GUI
             if nargin < 2
                 idx = 1;
             else
@@ -168,7 +168,7 @@ classdef Reactive < handle
                     if isempty(conv)
                         error('Unsupported conversion from %s to %s', from, to);
                     end
-                    if isstring(data) && (ismissing(data) || data == "<missing>")
+                    if isstring(data) && all(ismissing(data) | data == "<missing>")
                         data = "";
                     end
                     data = conv(data);
