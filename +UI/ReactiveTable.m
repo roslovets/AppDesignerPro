@@ -153,21 +153,8 @@ classdef ReactiveTable < UI.Reactive
             %% Move row by step
             if ~isempty(obj.Selection)
                 data = obj.readData();
-                n = height(data);
                 idx1 = obj.Selection.Row;
-                idx2 = obj.Selection.Row + step;
-                if idx2 < 1
-                    idx2 = n;
-                elseif idx2 > n
-                    idx2 = 1;
-                end
-                if idx1 == 1 && idx2 == n
-                    data = data([2 : end, 1], :);
-                elseif idx1 == n && idx2 == 1
-                    data = data([end, 1 : end-1], :);
-                else
-                    data([idx1 idx2], :) = data([idx2 idx1], :);
-                end
+                [data, ~, idx2] = UI.internal.moveRow(data, idx1, step);
                 obj.writeData(data);
                 obj.redraw();
                 obj.Selection.Row = idx2;
