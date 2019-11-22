@@ -33,7 +33,7 @@ classdef Reactive < handle
                 if class(obj.Reader) == "function_handle"
                     data = obj.Reader();
                 else
-                    if nargin > 1 && isobject(event)
+                    if nargin > 1 && UI.Utils.iseventdata(event)
                         i = obj.Source == event.Source;
                         if ~any(i)
                             i = 1;
