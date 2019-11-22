@@ -6,7 +6,7 @@ classdef ReactiveList < UI.Reactive
     properties
         Selection
         GUIValue
-        ItemsData
+        ItemsDataReact
         DefaultItemName = "Item"
     end
     
@@ -32,14 +32,17 @@ classdef ReactiveList < UI.Reactive
             obj.redrawValue();
         end
         
-        function select(obj, varargin)
+        function select(obj, value)
             %% Select item
-            obj.redrawValue(varargin{:});
+            if nargin < 2
+                value = [];
+            end
+            obj.redrawValue(value);
         end
         
         function val = getValue(obj, event)
             %% Get selected value
-            if nargin > 1
+            if nargin > 1 && ~isempty(event)
                 guiObj = event.Source;
             else
                 guiObj = obj.GUI(1);
@@ -47,18 +50,18 @@ classdef ReactiveList < UI.Reactive
             val = guiObj.Value;
         end
         
-        function [items, vals] = getValues(obj, event)
+        function [items, data] = getValues(obj, event)
             %% Get all values
             if nargin > 1
                 guiObj = event.Source;
             else
                 guiObj = obj.GUI(1);
             end
-            vals = get(guiObj, 'ItemsData');
+            data = get(guiObj, 'ItemsData');
             items = get(guiObj, 'Items');
         end
         
-        function setValues(obj, items, vals, event)
+        function setValues(obj, items, data, event)
             %% Get all values
             if nargin > 3
                 guiObj = event.Source;
@@ -66,15 +69,15 @@ classdef ReactiveList < UI.Reactive
                 guiObj = obj.GUI(1);
             end
             if ~isempty(guiObj.ItemsData)
-                obj.setData(vals);
+                obj.setData(data);
             end
             obj.writeData(items);
         end
         
         function setData(obj, varargin)
             %% Set Items Data to List
-            obj.ItemsData = UI.Reactive(varargin);
-            data = obj.ItemsData.readData();
+            obj.ItemsDataReact = UI.Reactive(varargin);
+            data = obj.ItemsDataReact.readData();
             for i = 1 : length(obj.GUI)
                 guiObj = obj.GUI(i);
                 set(guiObj, 'ItemsData', data{1});
@@ -102,18 +105,27 @@ classdef ReactiveList < UI.Reactive
             obj.redrawValue();
         end
         
-        function redrawValue(obj, varargin)
+        function redrawValue(obj, event)
             %% Redraw Value GUI
-            if ~isempty(obj.GUIValue)
-                for i = 1 : height(obj.GUIValue)
-                    obj.GUIValue.GUIReact(i).redraw();
-                end
+            if nargin < 2
+                event = [];
             end
-            value = obj.getValue(varargin{:});
+            if isempty(event) || isobject(event)
+                value = obj.getValue(event);
+            else
+                value = event;
+            end
             guiN = length(obj.GUI);
             if ~isempty(value) && guiN > 1
                 for i = 1 : guiN
-                    set(obj.GUI(i), 'Value', value);
+                    if ~isobject(event) || (event.Source ~= obj.GUI(i))
+                        set(obj.GUI(i), 'Value', value);
+                    end
+                end
+            end
+            if ~isempty(obj.GUIValue)
+                for i = 1 : height(obj.GUIValue)
+                    obj.GUIValue.GUIReact(i).redraw(event);
                 end
             end
         end
@@ -131,14 +143,16 @@ classdef ReactiveList < UI.Reactive
             end
             data = [data; item];
             obj.writeData(data);
-            if ~isempty(obj.ItemsData)
-                d = obj.ItemsData.readData{1};
-                d = d(:);
-                if nargin < 3
-                    dataValue = idx;
+            if ~isempty(obj.ItemsDataReact)
+                d = obj.ItemsDataReact.readData{1};
+                if ~isempty(d)
+                    d = d(:);
+                    if nargin < 3
+                        dataValue = idx;
+                    end
+                    d = [d; dataValue];
+                    obj.setData(d);
                 end
-                d = [d; dataValue];
-                obj.setData(d);
             end
             obj.redraw();
         end
@@ -149,18 +163,22 @@ classdef ReactiveList < UI.Reactive
                 val = obj.getValue();
             end
             if ~isempty(val)
-                [items, values] = obj.getValues();
-                if ischar(val) || iscellstr(val)
-                    val = string(val);
-                end
-                if ~isempty(values)
-                    idx = find(values == val);
-                    values(idx) = [];
+                [items, data] = obj.getValues();
+                [items_i, data_i] = getValueIdx(obj, val);
+                items(items_i) = [];
+                data(data_i) = [];
+                obj.setValues(items, data);
+                if isempty(data)
+                    idx = items_i;
+                    values = items;
                 else
-                    idx = find(items == val);
+                    idx = data_i;
+                    values = data;
                 end
-                items(idx) = [];
-                obj.setValues(items, values);
+                i = min([idx, length(values)]);
+                if i > 0
+                    obj.select(values(i));
+                end
                 obj.redraw();
                 obj.redrawValue();
             end
@@ -194,6 +212,23 @@ classdef ReactiveList < UI.Reactive
             %% Check Item exists
             data = obj.readData();
             yes = ismember(item, data);
+        end
+        
+        function [items_i, data_i] = getValueIdx(obj, val)
+            %% Get indices of specified value
+            if ~isempty(val)
+                [items, data] = obj.getValues();
+                if ischar(val) || iscellstr(val)
+                    val = string(val);
+                end
+                if ~isempty(data)
+                    data_i = find(ismember(data, val));
+                    items_i = data_i;
+                else
+                    data_i = [];
+                    items_i = find(ismember(items, val));
+                end
+            end
         end
         
         

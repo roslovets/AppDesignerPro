@@ -27,13 +27,21 @@ classdef Reactive < handle
             obj.createConvRules();
         end
         
-        function data = readData(obj)
+        function data = readData(obj, event)
             %% Read data from source
             if ~isempty(obj.Reader)
                 if class(obj.Reader) == "function_handle"
                     data = obj.Reader();
                 else
-                    data = obj.Source.(obj.Reader);
+                    if nargin > 1 && isobject(event)
+                        i = obj.Source == event.Source;
+                        if ~any(i)
+                            i = 1;
+                        end
+                    else
+                        i = 1;
+                    end
+                    data = obj.Source(i).(obj.Reader);
                 end
             else
                 data = obj.Source;
@@ -74,9 +82,9 @@ classdef Reactive < handle
             obj.redraw();
         end
         
-        function redraw(obj)
+        function redraw(obj, varargin)
             %% Redraw GUI
-            data = obj.readData();
+            data = obj.readData(varargin{:});
             for i = 1 : length(obj.GUI)
                 guiObj = obj.GUI(i);
                 guiClass = class(guiObj);
