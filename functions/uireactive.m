@@ -6,5 +6,3 @@ function r = uireactive(varargin)
 %   Example app: uireactiveExample
 
 r = UI.Reactive(varargin{:});
-end
-

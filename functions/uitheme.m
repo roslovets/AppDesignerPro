@@ -48,4 +48,3 @@ switch theme
     otherwise
         error('Unknown theme: %s. Use one of the: none|dark|light|success|info|warning|danger', theme);
 end
-

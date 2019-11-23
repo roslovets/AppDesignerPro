@@ -6,5 +6,3 @@ function r = uireactivetable(varargin)
 %   Example app: uireactivetableExample
 
 r = UI.ReactiveTable(varargin{:});
-end
-
