@@ -65,6 +65,13 @@ classdef ReactiveList < UI.Reactive
             val = guiObj.Value;
         end
         
+        function item = getItem(obj)
+            %% Get selected Item
+            items = obj.getValues();
+            i = obj.getValueIdx();
+            item = items(i);
+        end
+        
         function [items, data] = getValues(obj)
             %% Get all values
             if ~isempty(obj.ItemsDataReact)
@@ -133,7 +140,7 @@ classdef ReactiveList < UI.Reactive
                 value = event;
             end
             guiN = length(obj.GUI);
-            if ~isempty(value) && guiN > 1
+            if ~isempty(value)
                 for i = 1 : guiN
                     if ~UI.Utils.iseventdata(event) || (event.Source ~= obj.GUI(i))
                         set(obj.GUI(i), 'Value', value);
@@ -211,6 +218,21 @@ classdef ReactiveList < UI.Reactive
         function moveItemDown(obj)
             %% Move Item one step down
             obj.moveItem(1);
+        end
+        
+        function rename(obj, newname, oldname)
+            %% Rename Item
+            items = obj.getValues();
+            if nargin < 3
+                i = obj.getValueIdx();
+            else
+                i = items == (oldname);
+            end
+            items(i) = string(newname);
+            obj.setItems(items);
+            obj.redraw();
+            obj.selectPrevious(items, [], i);
+            obj.redraw();
         end
         
         function yes = isItem(obj, item)
