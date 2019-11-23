@@ -18,7 +18,7 @@ classdef ReactiveList < UI.Reactive
         
         function redraw(obj)
             %% Redraw List
-            items = obj.getValues();
+            items = obj.getItems();
             for i = 1 : length(obj.GUI)
                 guiObj = obj.GUI(i);
                 set(guiObj, 'Items', items);
@@ -40,18 +40,22 @@ classdef ReactiveList < UI.Reactive
             obj.redrawValue(value);
         end
         
-        function selectPrevious(obj, items, data, items_i, data_i)
+        function selectPrevious(obj, items, data, idx)
             %% Select previous value
+            if nargin < 2
+                data = obj.getItemsData();
+            end
+            if nargin < 3
+                idx = obj.getValueIdx();
+            end
             if isempty(data)
-                idx = items_i;
                 values = items;
             else
-                idx = data_i;
                 values = data;
             end
-            i = min([idx; length(values)]);
-            if i > 0
-                obj.select(values(i));
+            idx = min([idx; length(values)]);
+            if idx > 0
+                obj.select(values(idx));
             end
         end
         
@@ -67,22 +71,32 @@ classdef ReactiveList < UI.Reactive
         
         function item = getItem(obj)
             %% Get selected Item
-            items = obj.getValues();
+            items = obj.getItems();
             i = obj.getValueIdx();
             item = items(i);
         end
         
-        function [items, data] = getValues(obj)
-            %% Get all values
+        function items = getItems(obj)
+            %% Get List Items
+            items = obj.readData();
+            items = string(items);
+            items = items(:);
+        end
+        
+        function data = getItemsData(obj)
+            %% Get List Items Data
             if ~isempty(obj.ItemsDataReact)
                 data = obj.ItemsDataReact.readData{1};
                 data = data(:);
             else
                 data = [];
             end
-            items = obj.readData();
-            items = string(items);
-            items = items(:);
+        end
+        
+        function [items, data] = getValues(obj)
+            %% Get all values
+            data = obj.getItemsData();
+            items = obj.getItems();
         end
         
         function setValues(obj, items, data)
@@ -101,7 +115,7 @@ classdef ReactiveList < UI.Reactive
         function setItemsData(obj, varargin)
             %% Set Items Data to List
             obj.ItemsDataReact = UI.Reactive(varargin);
-            [~, data] = obj.getValues();
+            data = obj.getItemsData();
             for i = 1 : length(obj.GUI)
                 guiObj = obj.GUI(i);
                 set(guiObj, 'ItemsData', data);
@@ -156,7 +170,7 @@ classdef ReactiveList < UI.Reactive
         
         function addItem(obj, item, dataValue)
             %% Add new items to List
-            items = obj.getValues();
+            items = obj.getItems();
             items = string(items);
             items = items(:);
             if nargin < 2 || isempty(item)
@@ -168,7 +182,7 @@ classdef ReactiveList < UI.Reactive
             items = [items; item];
             obj.setItems(items);
             if ~isempty(obj.ItemsDataReact)
-                [~, data] = obj.getValues();
+                data = obj.getItemsData();
                 if ~isempty(data)
                     if nargin < 3
                         dataValue = idx;
@@ -191,7 +205,7 @@ classdef ReactiveList < UI.Reactive
                 items(items_i) = [];
                 data(data_i) = [];
                 obj.setValues(items, data);
-                obj.selectPrevious(items, data, items_i, data_i);
+                obj.selectPrevious(items, data, items_i);
                 obj.redraw();
             end
         end
@@ -222,7 +236,7 @@ classdef ReactiveList < UI.Reactive
         
         function rename(obj, newname, oldname)
             %% Rename Item
-            items = obj.getValues();
+            items = obj.getItems();
             if nargin < 3
                 i = obj.getValueIdx();
             else
@@ -231,14 +245,29 @@ classdef ReactiveList < UI.Reactive
             items(i) = string(newname);
             obj.setItems(items);
             obj.redraw();
-            obj.selectPrevious(items, [], i);
+            obj.selectPrevious();
             obj.redraw();
         end
         
         function yes = isItem(obj, item)
             %% Check Item exists
-            items = obj.getValues();
+            items = obj.getItems();
             yes = ismember(item, items);
+        end
+        
+        function yes = isItemData(obj, value)
+            %% Check Item Data exists
+            data = obj.getItemsData();
+            yes = ismember(value, data);
+        end
+        
+        function yes = isSelected(obj, value)
+            %% Check Value is selected
+            sel_value = obj.getValue();
+            if nargin < 2
+                value = sel_value;
+            end
+            yes = ~isempty(sel_value) && (sel_value == value);
         end
         
         function [items_i, data_i] = getValueIdx(obj, val)
@@ -265,4 +294,3 @@ classdef ReactiveList < UI.Reactive
     end
     
 end
-
