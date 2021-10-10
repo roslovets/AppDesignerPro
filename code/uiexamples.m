@@ -1,4 +1,4 @@
 function uiexamples()
 % Open App Designer Pro examples
 ext = AppDesignerProExtender();
-ext.examples();
+cd(fullfile(ext.root(), 'doc/examples'))

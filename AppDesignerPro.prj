@@ -1,9 +1,9 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="E:\MATLAB\AppDesignerPro\AppDesignerPro.prj" location="E:\MATLAB\AppDesignerPro" name="AppDesignerPro" target="target.toolbox" target-name="Package Toolbox">
+  <configuration file="D:\PROJECTS\AppDesignerPro\AppDesignerPro.prj" location="D:\PROJECTS\AppDesignerPro" name="AppDesignerPro" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>App Designer Pro</param.appname>
-    <param.authnamewatermark>Pavel Roslovets</param.authnamewatermark>
-    <param.email>roslovets@exponenta.ru</param.email>
-    <param.company>ETMC Exponenta</param.company>
+    <param.authnamewatermark />
+    <param.email />
+    <param.company />
     <param.summary>UI library for professional apps building</param.summary>
     <param.description>Improve your apps with new features:
 - Input dialogs and snackbars
@@ -113,17 +113,16 @@ AppDesignerProDev.m</param.exclude.filters>
     <fileset.depfun.excluded />
     <fileset.package />
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="App Designer Pro.mltbx" optional="false">E:\MATLAB\AppDesignerPro\App Designer Pro.mltbx</file>
+      <file location="${PROJECT_ROOT}" name="App Designer Pro.mltbx" optional="false">D:\PROJECTS\AppDesignerPro\App Designer Pro.mltbx</file>
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>E:\Program Files\MATLAB\R2020a</root>
+      <root>D:\Program Files\MATLAB\R2021b</root>
       <toolboxes>
         <toolbox name="matlabcoder" />
         <toolbox name="embeddedcoder" />
         <toolbox name="gpucoder" />
         <toolbox name="fixedpoint" />
-        <toolbox name="matlabhdlcoder" />
         <toolbox name="neuralnetwork" />
       </toolboxes>
       <toolbox>
@@ -145,11 +144,6 @@ AppDesignerProDev.m</param.exclude.filters>
         <fixedpoint>
           <enabled>true</enabled>
         </fixedpoint>
-      </toolbox>
-      <toolbox>
-        <matlabhdlcoder>
-          <enabled>true</enabled>
-        </matlabhdlcoder>
       </toolbox>
       <toolbox>
         <neuralnetwork>
