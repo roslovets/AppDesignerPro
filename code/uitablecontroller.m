@@ -7,7 +7,7 @@ function c = uitablecontroller(opts)
 arguments
     opts.Data = []
     opts.DataObject = []
-    opts.DataProperty (1,1) string = ""
+    opts.DataProperty (1,1) string = missing
     opts.DataReadFcn = []
     opts.DataWriteFcn = []
     opts.UI = []

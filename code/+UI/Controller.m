@@ -11,7 +11,7 @@ classdef Controller < handle
         ConvRules
         Data
         DataObject = []
-        DataProperty (1,1) string = ""
+        DataProperty (1,1) string = missing
         DataReadFcn
         DataWriteFcn
     end
@@ -23,7 +23,7 @@ classdef Controller < handle
             arguments
                 opts.Data = []
                 opts.DataObject = []
-                opts.DataProperty (1,1) string = ""
+                opts.DataProperty (1,1) string = missing
                 opts.DataReadFcn = []
                 opts.DataWriteFcn = []
                 opts.UI = []
@@ -41,7 +41,7 @@ classdef Controller < handle
                 obj
                 opts.Data = []
                 opts.DataObject = []
-                opts.DataProperty (1,1) string = ""
+                opts.DataProperty (1,1) string = missing
                 opts.DataReadFcn = []
                 opts.DataWriteFcn = []
             end
@@ -176,7 +176,7 @@ classdef Controller < handle
             %% Read data from source
             if ~isempty(obj.DataReadFcn)
                 value = obj.DataReadFcn();
-            elseif obj.DataProperty ~= ""
+            elseif ~ismissing(obj.DataProperty)
                 value = obj.DataObject.(obj.DataProperty);
             else
                 value = obj.Data;
@@ -187,7 +187,7 @@ classdef Controller < handle
             %% Write data to source
             if ~isempty(obj.DataWriteFcn)
                 obj.DataWriteFcn(value);
-            elseif obj.DataProperty ~= ""
+            elseif ~ismissing(obj.DataProperty)
                 obj.DataObject.(obj.DataProperty) = value;
             else
                 obj.Data = value;
