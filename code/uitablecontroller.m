@@ -1,9 +1,9 @@
-function c = uicontroller(opts)
-%UI Controller
-%   Binds data with UI components
-%   Documentation is under development, please examine examples: uiexamples
+function c = uitablecontroller(opts)
+%UI Table Controller
+%   Binds table data with UI elements
+%   Documentation is under development, please examine examples: uiexample
 %
-%   Example app: uireactiveExample
+%   Example app: uireactivetableExample
 arguments
     opts.Data = []
     opts.DataObject = []
@@ -12,7 +12,7 @@ arguments
     opts.DataWriteFcn = []
     opts.UI = []
 end
-c = UI.Controller( ...
+c = UI.TableController( ...
     Data=opts.Data, ...
     DataObject=opts.DataObject, DataProperty=opts.DataProperty, ...
     DataReadFcn=opts.DataReadFcn, DataWriteFcn = opts.DataWriteFcn, ...

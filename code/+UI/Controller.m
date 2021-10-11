@@ -170,7 +170,7 @@ classdef Controller < handle
 
     end
 
-    methods (Access=private)
+    methods (Access=protected)
 
         function value = readData(obj)
             %% Read data from source
