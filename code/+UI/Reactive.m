@@ -33,7 +33,7 @@ classdef Reactive < handle
                 if class(obj.Reader) == "function_handle"
                     data = obj.Reader();
                 else
-                    if nargin > 1 && UI.util.iseventdata(event)
+                    if nargin > 1 && startsWith(class(event), 'matlab.ui.eventdata')
                         i = obj.Source == event.Source;
                         if ~any(i)
                             i = 1;

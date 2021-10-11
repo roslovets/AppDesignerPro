@@ -148,7 +148,7 @@ classdef ReactiveList < UI.Reactive
             if nargin < 2
                 event = [];
             end
-            if isempty(event) || UI.util.iseventdata(event)
+            if isempty(event) || startsWith(class(event), 'matlab.ui.eventdata')
                 value = obj.getValue(event);
             else
                 value = event;
@@ -156,7 +156,7 @@ classdef ReactiveList < UI.Reactive
             guiN = length(obj.GUI);
             if ~isempty(value)
                 for i = 1 : guiN
-                    if ~UI.util.iseventdata(event) || (event.Source ~= obj.GUI(i))
+                    if ~startsWith(class(event), 'matlab.ui.eventdata') || (event.Source ~= obj.GUI(i))
                         set(obj.GUI(i), 'Value', value);
                     end
                 end
