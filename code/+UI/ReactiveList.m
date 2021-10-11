@@ -148,7 +148,7 @@ classdef ReactiveList < UI.Reactive
             if nargin < 2
                 event = [];
             end
-            if isempty(event) || UI.Utils.iseventdata(event)
+            if isempty(event) || UI.util.iseventdata(event)
                 value = obj.getValue(event);
             else
                 value = event;
@@ -156,7 +156,7 @@ classdef ReactiveList < UI.Reactive
             guiN = length(obj.GUI);
             if ~isempty(value)
                 for i = 1 : guiN
-                    if ~UI.Utils.iseventdata(event) || (event.Source ~= obj.GUI(i))
+                    if ~UI.util.iseventdata(event) || (event.Source ~= obj.GUI(i))
                         set(obj.GUI(i), 'Value', value);
                     end
                 end
@@ -174,7 +174,7 @@ classdef ReactiveList < UI.Reactive
             items = string(items);
             items = items(:);
             if nargin < 2 || isempty(item)
-                [idx, item] = UI.Utils.genUniqueIdx(items, obj.DefaultItemName);
+                [idx, item] = UI.util.genUniqueIdx(items, obj.DefaultItemName);
             else
                 item = string(item);
                 item = item(:);
