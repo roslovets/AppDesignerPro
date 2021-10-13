@@ -29,20 +29,6 @@ eval(webread('https://git.io/fjbyL'))
 ## Offline installation
 Download and open [AppDesignerPro.mltbx](https://roslovets.github.io/ghbin/#roslovets/AppDesignerPro#AppDesignerPro.mltbx)
 
-## Build and install (only for developers)
-
-Download and unzip [project files](https://github.com/roslovets/AppDesignerPro/archive/master.zip), run installation script:
-```MATLAB
-install
-```
-
-# How to update
-
-To automatically update installed App Designer Pro to the latest version execute
-```MATLAB
-UI.update
-```
-
 # Documentation
 
 [Explore online](https://github.com/roslovets/AppDesignerPro/blob/master/doc/GettingStarted.pdf) or execute in MATLAB:

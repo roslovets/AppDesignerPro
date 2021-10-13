@@ -8,8 +8,4 @@ disp('Installing...')
 matlab.addons.install(instRes.assets.name);
 clear instURL instRes instName
 disp('Installation complete!')
-% Post-install commands
-ext = AppDesignerProExtender;
-ext.doc;
-clear ext
 % Add your post-install commands below

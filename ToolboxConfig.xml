@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<config>
-   <name>App Designer Pro</name>
-   <pname>AppDesignerPro.prj</pname>
-   <type>toolbox</type>
-   <remote>https://github.com/roslovets/AppDesignerPro</remote>
-   <extv>2.2.2</extv>
-</config>
-<!--Toolbox Extender configuration file. DO NOT DELETE-->
