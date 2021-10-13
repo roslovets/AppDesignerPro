@@ -174,7 +174,7 @@ classdef ReactiveList < UI.Reactive
             items = string(items);
             items = items(:);
             if nargin < 2 || isempty(item)
-                [idx, item] = UI.util.genUniqueIdx(items, obj.DefaultItemName);
+                [item, idx] = UI.util.generateItem(items, obj.DefaultItemName);
             else
                 item = string(item);
                 item = item(:);
