@@ -1,24 +1,21 @@
-classdef Controller < handle
+classdef UIController < handle
     %% Bind UI components to data
     %   Author: Pavel Roslovets, ETMC Exponenta
     %           https://roslovets.github.io
 
     properties
         UI
+        UIProperty (1,1) string
     end
 
     properties (Hidden)
+        DataController
         ConvRules
-        Data
-        DataObject = []
-        DataProperty (1,1) string = missing
-        DataReadFcn
-        DataWriteFcn
     end
 
     methods
 
-        function obj = Controller(opts)
+        function obj = UIController(opts)
             %% Initialize object
             arguments
                 opts.Data = []
@@ -27,11 +24,15 @@ classdef Controller < handle
                 opts.DataReadFcn = []
                 opts.DataWriteFcn = []
                 opts.UI = []
+                opts.UIProperty (1,1) string = "Value"
             end
             obj.createConvRules();
-            obj.bindData(Data=opts.Data, ...
+            obj.bindData( ...
+                Data=opts.Data, ...
                 DataObject=opts.DataObject, DataProperty=opts.DataProperty, ...
-                DataReadFcn=opts.DataReadFcn, DataWriteFcn = opts.DataWriteFcn);
+                DataReadFcn=opts.DataReadFcn, DataWriteFcn = opts.DataWriteFcn ...
+                )
+            obj.UIProperty = opts.UIProperty;
             obj.bindUI(opts.UI);
         end
 
@@ -45,11 +46,11 @@ classdef Controller < handle
                 opts.DataReadFcn = []
                 opts.DataWriteFcn = []
             end
-            obj.Data = opts.Data;
-            obj.DataObject = opts.DataObject;
-            obj.DataProperty = opts.DataProperty;
-            obj.DataReadFcn = opts.DataReadFcn;
-            obj.DataWriteFcn = opts.DataWriteFcn;
+            obj.DataController = UI.util.DataController( ...
+                Data=opts.Data, ...
+                DataObject=opts.DataObject, DataProperty=opts.DataProperty, ...
+                DataReadFcn=opts.DataReadFcn, DataWriteFcn = opts.DataWriteFcn ...
+                );
         end
 
         function bindUI(obj, component)
@@ -60,14 +61,19 @@ classdef Controller < handle
             arguments (Repeating)
                 component
             end
-            component = horzcat(component{:});
-            for i = 1 : length(component)
-                guiobj = component(i);
-                if isnumeric(guiobj)
-                    guiobj = findobj(guiobj);
+            components = horzcat(component{:});
+            data = obj.getData();
+            for i = 1 : length(components)
+                uiComp = components(i);
+                if isnumeric(uiComp)
+                    uiComp = findobj(uiComp);
                 end
-                if ~ismember(guiobj, obj.UI)
-                    obj.UI = [obj.UI; guiobj];
+                if ~ismember(uiComp, obj.UI)
+                    obj.UI = [obj.UI; uiComp];
+                    value = uiComp.(obj.UIProperty);
+                    if isempty(data) && ~isempty(value)
+                        data = obj.setData(value);
+                    end
                 end
             end
             obj.redrawUI();
@@ -81,7 +87,8 @@ classdef Controller < handle
             arguments (Repeating)
                 component
             end
-            idx = ismember(obj.UI, [component{:}]);
+            components = horzcat(component{:});
+            idx = ismember(obj.UI, components);
             obj.UI(idx) = [];
             obj.redrawUI();
         end
@@ -99,16 +106,16 @@ classdef Controller < handle
             end
             value = obj.readData();
             if ~isempty(idx)
-                guiObj = obj.UI(idx(1));
-                guiClass = class(guiObj);
-                switch guiClass
-                    case "matlab.ui.control.Table"
-                        value = obj.convert(guiObj.Data, class(value));
+                uiComp = obj.UI(idx(1));
+                uiClass = class(uiComp);
+                switch uiClass
                     case "matlab.ui.control.TextArea"
-                        txt = join(string(guiObj.Value), newline);
-                        value = obj.convert(txt, class(value));
+                        if obj.UIProperty == "Value"
+                            value = join(string(uiComp.(obj.UIProperty)), newline);
+                        end
+                        value = obj.convert(value, class(value));
                     otherwise
-                        value = obj.convert(guiObj.Value, class(value));
+                        value = obj.convert(uiComp.(obj.UIProperty), class(value));
                 end
                 obj.writeData(value);
             end
@@ -120,7 +127,7 @@ classdef Controller < handle
             data = obj.readData();
         end
 
-        function setData(obj, data)
+        function data = setData(obj, data)
             %% Set data to controller
             obj.writeData(data);
             obj.redrawUI();
@@ -130,42 +137,42 @@ classdef Controller < handle
             %% Redraw UI components
             data = obj.readData();
             for i = 1 : length(obj.UI)
-                guiObj = obj.UI(i);
-                guiClass = class(guiObj);
-                switch guiClass
-                    case "matlab.ui.control.Table"
-                        set(guiObj, 'Data', data);
-                        if istable(data)
-                            set(guiObj, 'ColumnName', data.Properties.VariableNames);
-                        end
-                    case "matlab.ui.control.TextArea"
-                        value = obj.convert(data, class(get(guiObj, 'Value')));
-                        if isempty(value)
-                            value = '';
-                        end
-                        set(guiObj, 'Value', value);
-                    otherwise
-                        value = obj.convert(data, class(get(guiObj, 'Value')));
-                        if isprop(guiObj, 'Limits')
-                            limits = get(guiObj, 'Limits');
-                            if isempty(value) || (isnumeric(value) && isnan(value)) || (isdatetime(value) && isnat(value))
-                                value = limits(1);
-                            elseif value < limits(1)
-                                value = limits(1);
-                            elseif value > limits(2)
-                                value = limits(2);
-                            end
-                        end
-                        if isempty(value)
-                            if islogical(value)
-                                value = false;
-                            elseif ischar(value)
-                                value = '';
-                            end
-                        end
-                        set(guiObj, 'Value', value);
+                uiComp = obj.UI(i);
+                value = obj.convert(data, class(get(uiComp, obj.UIProperty)));
+                if isprop(uiComp, 'Limits')
+                    limits = get(uiComp, 'Limits');
+                    if isempty(value) || (isnumeric(value) && isnan(value)) || (isdatetime(value) && isnat(value))
+                        value = limits(1);
+                    elseif value < limits(1)
+                        value = limits(1);
+                    elseif value > limits(2)
+                        value = limits(2);
+                    end
                 end
+                if isempty(value)
+                    if islogical(value)
+                        value = false;
+                    elseif ischar(value)
+                        value = '';
+                    end
+                end
+                if obj.UIProperty == "Value"
+                    if iscellstr(value) || ischar(value)
+                        value = string(value);
+                    elseif iscell(value)
+                        value = vertcat(value{:});
+                    end
+                    if length(value) > 1 && (~isprop(uiComp, "Multiselect") || uiComp.Multiselect == false)
+                        value = value(1);
+                    end
+                end
+                set(uiComp, obj.UIProperty, value);
             end
+        end
+
+        function isE = isEmpty(obj)
+            %% Controller is empty
+            isE = isempty(obj.UI) && obj.DataController.isEmpty();
         end
 
     end
@@ -174,24 +181,12 @@ classdef Controller < handle
 
         function value = readData(obj)
             %% Read data from source
-            if ~isempty(obj.DataReadFcn)
-                value = obj.DataReadFcn();
-            elseif ~ismissing(obj.DataProperty)
-                value = obj.DataObject.(obj.DataProperty);
-            else
-                value = obj.Data;
-            end
+            value = obj.DataController.readData();
         end
 
         function writeData(obj, value)
             %% Write data to source
-            if ~isempty(obj.DataWriteFcn)
-                obj.DataWriteFcn(value);
-            elseif ~ismissing(obj.DataProperty)
-                obj.DataObject.(obj.DataProperty) = value;
-            else
-                obj.Data = value;
-            end
+            obj.DataController.writeData(value);
         end
 
         function createConvRules(obj)

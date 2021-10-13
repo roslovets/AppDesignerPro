@@ -1,4 +1,4 @@
-classdef TableController < UI.Controller
+classdef TableController < UI.UIController
     %% Create autoupdating reactive table strongly binded with data
     %   Author: Pavel Roslovets, ETMC Exponenta
     %           https://roslovets.github.io
@@ -20,7 +20,7 @@ classdef TableController < UI.Controller
                 opts.DataWriteFcn = []
                 opts.UI = []
             end
-            obj = obj@UI.Controller( ...
+            obj = obj@UI.UIController( ...
                 Data=opts.Data, ...
                 DataObject=opts.DataObject, DataProperty=opts.DataProperty, ...
                 DataReadFcn=opts.DataReadFcn, DataWriteFcn = opts.DataWriteFcn, ...
@@ -41,7 +41,7 @@ classdef TableController < UI.Controller
 
         function redrawUI(obj)
             %% Redraw table
-            redrawUI@UI.Controller(obj);
+            redrawUI@UI.UIController(obj);
             if ~isempty(obj.ColumnName)
                 for i = 1 : length(obj.UI)
                     obj.UI(i).ColumnName = obj.ColumnName;
@@ -55,7 +55,7 @@ classdef TableController < UI.Controller
                 obj
                 event = []
             end
-            update@UI.Controller(obj, event);
+            update@UI.UIController(obj, event);
             obj.redrawVars();
         end
 
@@ -187,7 +187,7 @@ classdef TableController < UI.Controller
 
         function bindVar(obj, varName, component)
             %% Bind table variable to GUI object
-            uiController = UI.Controller( ...
+            uiController = UI.UIController( ...
                 DataReadFcn=@()obj.readVarData(varName), DataWriteFcn=@(x)obj.writeVarData(varName, x), ...
                 UI=component ...
                 );
