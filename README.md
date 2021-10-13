@@ -1,6 +1,6 @@
 # App Designer Pro
 
-![screenshot](https://github.com/roslovets/AppDesignerPro/raw/master/images/screenshot1.png)
+![screenshot](main/images/screenshot1.png)
 
 UI library for professional apps building
 
@@ -15,7 +15,7 @@ Improve your apps with new features:
 
 # System Requirements
 
-MATLAB R2018b or later
+MATLAB R2021b or later
 
 # How to install
 

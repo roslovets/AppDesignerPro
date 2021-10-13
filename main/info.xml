@@ -9,7 +9,7 @@
     <!-- Supply the following six elements in the order specified -->
     <!-- (Required) Release of MATLAB. Not currently used but required -->
     <!-- to parse the file -->
-    <matlabrelease>2019a</matlabrelease>
+    <matlabrelease>2021a</matlabrelease>
     <!-- (Required) Title of toolbox. Appears in the Contents pane -->
     <name>App Designer Pro</name>
     <!-- (Required) Label for the toolbox. pick one: -->
