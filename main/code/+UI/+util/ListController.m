@@ -283,52 +283,12 @@ classdef ListController < handle
             if sel > 0
                 items = obj.getItems();
                 itemsData = obj.getItemsData();
-                [items, ~, selNew] = obj.moveRow(items, sel, dir);
+                [items, ~, selNew] = UI.util.moveRows(items, sel, dir);
                 if ~isempty(itemsData)
-                    itemsData = obj.moveRow(itemsData, sel, dir);
+                    itemsData = UI.util.moveRows(itemsData, sel, dir);
                 end
                 obj.setItemsWithData(items, itemsData);
                 obj.selectIdx(selNew);
-            end
-        end
-
-        function [data, idx1, idx2] = moveRow(~, data, idx1, dir)
-            %% Move row in data from idx1 for step
-            if ~isempty(data)
-                n = size(data, 1);
-                if islogical(idx1)
-                    idx1 = find(idx1);
-                end
-                idx1 = idx1(:);
-                idx2 = idx1 + sign(dir);
-                idx2(idx2 < 1) = idx2(idx2 < 1) + n;
-                idx2(idx2 > n) = idx2(idx2 > n) - n;
-                if dir > 0
-                    [~, iSort] = sort(idx1, 1, "descend");
-                else
-                    [~, iSort] = sort(idx1, 1, "ascend");
-                end
-                idx1Sort = idx1(iSort);
-                idx2Sort = idx2(iSort);
-                for i = 1 : length(idx1Sort)
-                    idx1i = idx1Sort(i);
-                    idx2i = idx2Sort(i);
-                    if dir < 0
-                        if idx2i <= idx1i
-                            data([idx1i; idx2i], :) = data([idx2i; idx1i], :);
-                        else
-                            data = data([(idx1i+1 : end)'; idx1i], :);
-                            break;
-                        end
-                    elseif dir > 0
-                        if idx1i <= idx2i
-                            data([idx1i; idx2i], :) = data([idx2i; idx1i], :);
-                        else
-                            data = data([idx1i; (1 : idx1i-1)'], :);
-                            break;
-                        end
-                    end
-                end
             end
         end
 
