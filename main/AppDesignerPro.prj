@@ -1,8 +1,8 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="D:\PROJECTS\AppDesignerPro\main\AppDesignerPro.prj" location="D:\PROJECTS\AppDesignerPro\main" name="AppDesignerPro" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="3724101664" file="D:\PROJECTS\AppDesignerPro\main\AppDesignerPro.prj" location="D:\PROJECTS\AppDesignerPro\main" name="AppDesignerPro" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>App Designer Pro</param.appname>
-    <param.authnamewatermark />
-    <param.email />
+    <param.authnamewatermark>Pavel Roslovets</param.authnamewatermark>
+    <param.email>p.v.roslovets@gmail.com</param.email>
     <param.company />
     <param.summary>UI library for professional apps building</param.summary>
     <param.description>Improve your apps with new features:
@@ -54,8 +54,6 @@ AppDesignerProDev.m</param.exclude.filters>
     <param.additional.sw.mac.url />
     <param.additional.sw.linux.url />
     <unset>
-      <param.authnamewatermark />
-      <param.email />
       <param.company />
       <param.output />
       <param.products.name />
