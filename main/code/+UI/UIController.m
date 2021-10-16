@@ -4,13 +4,13 @@ classdef UIController < handle
     %           https://roslovets.github.io
 
     properties
-        UI
-        UIProperty (1,1) string
+        UI % UI Component
+        UIProperty (:,1) string % Property of UI component to control
     end
 
     properties (Hidden)
-        DataController
-        ConvRules
+        DataController % Data Controller object
+        ConvRules % How to convert data between types
     end
 
     methods
@@ -24,7 +24,7 @@ classdef UIController < handle
                 opts.DataReadFcn = []
                 opts.DataWriteFcn = []
                 opts.UI = []
-                opts.UIProperty (1,1) string = "Value"
+                opts.UIProperty (:,1) string = "Value"
             end
             obj.createConvRules();
             obj.bindData( ...
@@ -70,7 +70,8 @@ classdef UIController < handle
                 end
                 if ~ismember(uiComp, obj.UI)
                     obj.UI = [obj.UI; uiComp];
-                    value = uiComp.(obj.UIProperty);
+                    uiProp = obj.getUIProperty(i);
+                    value = uiComp.(uiProp);
                     if isempty(data) && ~isempty(value)
                         data = obj.setData(value);
                     end
@@ -107,15 +108,16 @@ classdef UIController < handle
             value = obj.readData();
             if ~isempty(idx)
                 uiComp = obj.UI(idx(1));
+                uiProp = obj.getUIProperty(idx(1));
                 uiClass = class(uiComp);
                 switch uiClass
                     case "matlab.ui.control.TextArea"
-                        if obj.UIProperty == "Value"
-                            value = join(string(uiComp.(obj.UIProperty)), newline);
+                        if uiProp == "Value"
+                            value = join(string(uiComp.(uiProp)), newline);
                         end
                         value = obj.convert(value, class(value));
                     otherwise
-                        value = obj.convert(uiComp.(obj.UIProperty), class(value));
+                        value = obj.convert(uiComp.(uiProp), class(value));
                 end
                 obj.writeData(value);
             end
@@ -125,6 +127,18 @@ classdef UIController < handle
         function data = getData(obj)
             %% Get data from controller
             data = obj.readData();
+        end
+
+        function uiProp = getUIProperty(obj, idx)
+            %% Get UI property name for binded component
+            arguments
+                obj
+                idx (1,1) double = NaN;
+            end
+            if isnan(idx) || length(obj.UIProperty) == 1
+                idx = 1;
+            end
+            uiProp = obj.UIProperty(idx);
         end
 
         function data = setData(obj, data)
@@ -138,7 +152,8 @@ classdef UIController < handle
             data = obj.readData();
             for i = 1 : length(obj.UI)
                 uiComp = obj.UI(i);
-                value = obj.convert(data, class(get(uiComp, obj.UIProperty)));
+                uiProp = obj.getUIProperty(i);
+                value = obj.convert(data, class(get(uiComp, uiProp)));
                 if isprop(uiComp, 'Limits')
                     limits = get(uiComp, 'Limits');
                     if isempty(value) || (isnumeric(value) && isnan(value)) || (isdatetime(value) && isnat(value))
@@ -156,7 +171,7 @@ classdef UIController < handle
                         value = '';
                     end
                 end
-                if obj.UIProperty == "Value"
+                if uiProp == "Value"
                     if iscellstr(value) || ischar(value)
                         value = string(value);
                     elseif iscell(value)
@@ -166,7 +181,7 @@ classdef UIController < handle
                         value = value(1);
                     end
                 end
-                set(uiComp, obj.UIProperty, value);
+                set(uiComp, uiProp, value);
             end
         end
 
@@ -209,9 +224,14 @@ classdef UIController < handle
 
         function data = convert(obj, data, to)
             %% Convert data between formats
+            arguments
+                obj
+                data
+                to (1,1) string
+            end
             if ~isempty(to)
                 from = class(data);
-                if ~strcmp(from, to)
+                if ~strcmp(from, to) && to ~= "matlab.lang.OnOffSwitchState"
                     conv = obj.ConvRules{from, to}{1};
                     if isempty(conv)
                         error('Unsupported conversion from %s to %s', from, to);
