@@ -8,6 +8,7 @@ classdef UIListController < handle
         ItemsUIController
         ItemsDataUIController
         ValueUIController
+        StateUIController
         ItemUIController
     end
 
@@ -33,6 +34,12 @@ classdef UIListController < handle
                 opts.ValueReadFcn = []
                 opts.ValueWriteFcn = []
                 opts.ValueUI = []
+                opts.State = []
+                opts.StateObject = []
+                opts.StateProperty (1,1) string = missing
+                opts.StateWriteFcn = []
+                opts.StateUI = []
+                opts.StateUIProperty (:,1) string = "Enable"
                 opts.Item = []
                 opts.ItemObject = []
                 opts.ItemProperty (1,1) string = missing
@@ -49,7 +56,10 @@ classdef UIListController < handle
                 ItemsDataReadFcn = opts.ItemsDataReadFcn, ItemsDataWriteFcn = opts.ItemsDataWriteFcn, ...
                 Value=opts.Value, ...
                 ValueObject=opts.ValueObject, ValueProperty=opts.ValueProperty, ...
-                ValueReadFcn = opts.ValueReadFcn, ValueWriteFcn = opts.ValueWriteFcn ...
+                ValueReadFcn = opts.ValueReadFcn, ValueWriteFcn = opts.ValueWriteFcn, ...
+                State=opts.State, ...
+                StateObject=opts.StateObject, StateProperty=opts.StateProperty, ...
+                StateWriteFcn = opts.StateWriteFcn ...
                 );
             obj.bindItems( ...
                 DataReadFcn=@()obj.ListController.getItems(), ...
@@ -63,6 +73,10 @@ classdef UIListController < handle
                 DataReadFcn=@()obj.ListController.getValue(), ...
                 DataWriteFcn=@(x)obj.ListController.select(x) ...
                 );
+            obj.bindState( ...
+                DataReadFcn=@()obj.ListController.getState(), ...
+                UIProperty=opts.StateUIProperty ...
+                );
             obj.bindItem( ...
                 DataReadFcn=@()obj.ListController.getItem(), ...
                 DataWriteFcn=@(x)obj.ListController.selectItem(x) ...
@@ -70,6 +84,7 @@ classdef UIListController < handle
             obj.ItemsUIController.bindUI(opts.ItemsUI);
             obj.ItemsDataUIController.bindUI(opts.ItemsDataUI);
             obj.ValueUIController.bindUI(opts.ValueUI);
+            obj.StateUIController.bindUI(opts.StateUI);
             obj.ItemUIController.bindUI(opts.ItemUI);
         end
 
@@ -126,6 +141,24 @@ classdef UIListController < handle
                 );
         end
 
+        function bindState(obj, opts)
+            %% Bind List state
+            arguments
+                obj
+                opts.Data = []
+                opts.DataObject = []
+                opts.DataProperty (1,1) string = missing
+                opts.DataReadFcn = []
+                opts.UIProperty = []
+            end
+            obj.StateUIController = UI.UIController( ...
+                Data=opts.Data, ...
+                DataObject=opts.DataObject, DataProperty=opts.DataProperty, ...
+                DataReadFcn=opts.DataReadFcn, ...
+                UIProperty=opts.UIProperty ...
+                );
+        end
+
         function bindItem(obj, opts)
             %% Bind List item
             arguments
@@ -158,6 +191,7 @@ classdef UIListController < handle
             obj.ItemsUIController.redrawUI();
             obj.ItemsDataUIController.redrawUI();
             obj.ValueUIController.redrawUI();
+            obj.StateUIController.redrawUI();
             obj.ItemUIController.redrawUI();
         end
 
