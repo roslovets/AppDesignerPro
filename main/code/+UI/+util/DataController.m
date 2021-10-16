@@ -9,7 +9,6 @@ classdef DataController < handle
         DataProperty (1,1) string = missing
         DataReadFcn
         DataWriteFcn
-        ConvRules
     end
 
     methods
