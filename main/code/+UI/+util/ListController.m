@@ -4,10 +4,11 @@ classdef ListController < handle
     %           https://roslovets.github.io
 
     properties
-        ItemsController
-        ItemsDataController
-        ValueController
-        Selection
+        ItemsController % Control list items
+        ItemsDataController % Control list items data (optional)
+        ValueController % Control list value
+        StateController % Control list state (empty/not empty)
+        Selection % Current list selection
     end
 
     methods
@@ -30,6 +31,10 @@ classdef ListController < handle
                 opts.ValueProperty (1,1) string = missing
                 opts.ValueReadFcn = []
                 opts.ValueWriteFcn = []
+                opts.State = []
+                opts.StateObject = []
+                opts.StateProperty (1,1) string = missing
+                opts.StateWriteFcn = []
             end
             obj.ItemsController = UI.util.DataController( ...
                 Data=opts.Items, ...
@@ -45,6 +50,11 @@ classdef ListController < handle
                 Data=opts.Value, ...
                 DataObject=opts.ValueObject, DataProperty=opts.ValueProperty, ...
                 DataReadFcn = opts.ValueReadFcn, DataWriteFcn = opts.ValueWriteFcn ...
+                );
+            obj.StateController = UI.util.DataController( ...
+                Data=opts.State, ...
+                DataObject=opts.StateObject, DataProperty=opts.StateProperty, ...
+                DataWriteFcn = opts.StateWriteFcn ...
                 );
             obj.setItemsWithData(obj.getItems(), obj.getItemsData(), Value=obj.getValue());
         end
@@ -124,6 +134,12 @@ classdef ListController < handle
             end
         end
 
+        function hasItems = getState(obj)
+            %% Get list state (automatically)
+            values = obj.getValues();
+            hasItems = ~isempty(values);
+        end
+
         function obj = setItemsWithData(obj, items, itemsData, opts)
             %% Set List items
             arguments
@@ -150,6 +166,13 @@ classdef ListController < handle
         function setValue(obj, value)
             %% Get List value
             obj.ValueController.writeData(value);
+            obj.setState();
+        end
+
+        function setState(obj)
+            %% Set list state (automatically)
+            hasItems = obj.getState();
+            obj.StateController.writeData(hasItems);
         end
 
         function obj = select(obj, value)
