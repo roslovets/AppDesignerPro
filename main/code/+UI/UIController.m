@@ -153,7 +153,10 @@ classdef UIController < handle
             for i = 1 : length(obj.UI)
                 uiComp = obj.UI(i);
                 uiProp = obj.getUIProperty(i);
-                value = obj.convert(data, class(get(uiComp, uiProp)));
+                value = data;
+                if uiProp ~= "Data"
+                    value = obj.convert(data, class(get(uiComp, uiProp)));
+                end
                 if isprop(uiComp, 'Limits')
                     limits = get(uiComp, 'Limits');
                     if isempty(value) || (isnumeric(value) && isnan(value)) || (isdatetime(value) && isnat(value))
