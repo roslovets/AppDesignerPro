@@ -195,15 +195,24 @@ classdef UITableController < handle
             end
         end
 
-        function vals = getRow(obj)
+        function row = getValue(obj)
+            %% Get selected value
+            row = obj.TableController.getValue();
+        end
+
+        function row = getCell(obj)
             %% Get selected row
-            sel = obj.getSelection();
-            if isempty(sel)
-                vals = [];
-            else
-                data = obj.getData();
-                vals = data(sel(1), :);
-            end
+            row = obj.TableController.getCell();
+        end
+
+        function row = getRow(obj)
+            %% Get selected row
+            row = obj.TableController.getRow();
+        end
+
+        function row = getColumn(obj)
+            %% Get selected column
+            row = obj.TableController.getColumn();
         end
 
         function addRow(obj, values)
