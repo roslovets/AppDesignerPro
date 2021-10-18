@@ -7,7 +7,8 @@ classdef TableController < handle
         DataController
         SelectionController
         ValueController
-        SelectionType = "cell"
+        SelectionType (1,1) string
+        ValueType (1,1) string
     end
 
     methods
@@ -25,11 +26,15 @@ classdef TableController < handle
                 opts.SelectionProperty (1,1) string = missing
                 opts.SelectionReadFcn = []
                 opts.SelectionWriteFcn = []
+                opts.SelectionType (1,1) string  ...
+                    {mustBeMember(opts.SelectionType,["cell","row","column"])} = "cell"
                 opts.Value = []
                 opts.ValueObject = []
                 opts.ValueProperty (1,1) string = missing
                 opts.ValueReadFcn = []
                 opts.ValueWriteFcn = []
+                opts.ValueType (1,1) string  ...
+                    {mustBeMember(opts.ValueType,["table","cell","raw"])} = "raw"
             end
             obj.DataController = UI.util.DataController( ...
                 Data=opts.Data, ...
@@ -46,6 +51,8 @@ classdef TableController < handle
                 DataObject=opts.ValueObject, DataProperty=opts.ValueProperty, ...
                 DataReadFcn = opts.ValueReadFcn, DataWriteFcn = opts.ValueWriteFcn ...
                 );
+            obj.SelectionType = opts.SelectionType;
+            obj.ValueType = opts.ValueType;
         end
 
         function data = getData(obj)
@@ -60,32 +67,43 @@ classdef TableController < handle
 
         function value = getValue(obj)
             %% Get Table value
-            data = obj.getData();
-            sel = obj.getSelection();
-            if ~isempty(sel)
-                if obj.SelectionType == "cell"
-                    if height(sel) == 1
-                        value = data{sel(1), sel(2)};
-                    else
-                        value = data(unique(sel(:,1)), unique(sel(:,2)));
-                    end
-                else
-                    value = [];
-                end
+            if obj.SelectionType == "cell"
+                value = obj.getCell();
+            elseif obj.SelectionType == "row"
+                value = obj.getRow();
+            elseif obj.SelectionType == "column"
+                value = obj.getColumn();
             else
                 value = [];
             end
+            if ~isempty(value)
+                if obj.ValueType == "cell"
+                    value = table2cell(value);
+                elseif obj.ValueType == "raw"
+                    value = value{:, :};
+                end
+            end
         end
 
-        function item = getItem(obj)
-            %% Get current item
-            sel = obj.getSelection();
-            items = obj.getItems();
-            if sel > 0
-                item = items(sel);
-            else
-                item = [];
-            end
+        function row = getCell(obj)
+            %% Get selected Table cell
+            data = obj.getData();
+            [rowIdx, colIdx] = obj.getSelectionIdx(Data=data);
+            row = data(rowIdx, colIdx);
+        end
+
+        function row = getRow(obj)
+            %% Get selected Table row
+            data = obj.getData();
+            rowIdx = obj.getSelectionIdx(Data=data);
+            row = data(rowIdx, :);
+        end
+
+        function column = getColumn(obj)
+            %% Get xelected Table column
+            data = obj.getData();
+            [~, columnIdx] = obj.getSelectionIdx(Data=data);
+            column = data(:, columnIdx);
         end
 
         function obj = setData(obj, data)
@@ -95,36 +113,42 @@ classdef TableController < handle
                 data table
             end
             obj.DataController.writeData(data);
+            value = obj.getValue();
+            obj.ValueController.writeData(value);
         end
 
         function obj = setSelection(obj, sel)
             %% Set Table selection
             obj.SelectionController.writeData(sel);
-        end
-
-        function setValue(obj, value)
-            %% Get List value
-            data = obj.getData();
-            sel = obj.getSelection();
-            if obj.SelectionType == "cell"
-                if height(sel) == 1
-                    data{sel(1), sel(2)} = value;
-                else
-                    data{unique(sel(:,1)), unique(sel(:,2))} = value;
-                end
-            else
-                value = [];
-            end
-            obj.setData(data);
+            value = obj.getValue();
             obj.ValueController.writeData(value);
         end
 
-        function obj = select(obj, sel)
-            %% Select Table section by indices
+        function setValue(obj, value)
+            %% Get Table value
             data = obj.getData();
+            sel = obj.getSelection();
+            if ~isempty(sel)
+                [rowIdx, colIdx] = obj.getSelectionIdx(sel, data=Data);
+                if iscell(value) || istable(value)
+                    data(rowIdx, colIdx) = value;
+                else
+                    data{rowIdx, colIdx} = value;
+                end
+                obj.setData(data);
+            end
+        end
+
+        function obj = select(obj, sel, opts)
+            %% Select Table section by indices
+            arguments
+                obj
+                sel
+                opts.Data = obj.getData();
+            end
             if ~isempty(sel)
                 if obj.SelectionType == "cell"
-                    sel(sel(:,1) > height(data), 1) = height(data);
+                    sel(sel(:,1) > height(opts.Data), 1) = height(opts.Data);
                     sel(sel(:,1) <= 0, :) = [];
                     sel = unique(sel, 'rows');
                 end
@@ -132,14 +156,14 @@ classdef TableController < handle
             end
         end
 
-        function obj = addRow(obj, values)
+        function obj = addRow(obj, row)
             %% Add new row to Table
             arguments
                 obj
-                values cell
+                row {mustBeA(row,["cell","table"])}
             end
             data = obj.getData();
-            data = [data; values];
+            data = [data; row];
             obj.setData(data);
         end
 
@@ -148,10 +172,10 @@ classdef TableController < handle
             sel = obj.getSelection();
             data = obj.getData();
             if ~isempty(sel) && ~isempty(data)
-                rowN = obj.getRowNum();
-                data(rowN, :) = [];
+                rowIdx = obj.getSelectionIdx(sel, Data=data);
+                data(rowIdx, :) = [];
+                obj.select(sel, Data=data);
                 obj.setData(data);
-                obj.select(sel);
             end
         end
 
@@ -165,15 +189,27 @@ classdef TableController < handle
             obj.moveRow(1);
         end
 
-        function rowsN = getRowNum(obj)
-            %% Get selected rows number
-            sel = obj.getSelection();
+        function [rowIdx, colIdx] = getSelectionIdx(obj, sel, opts)
+            %% Get selected indices
+            arguments
+                obj
+                sel = obj.getSelection()
+                opts.Data = obj.getData()
+            end
             if ~isempty(sel)
                 if obj.SelectionType == "cell"
-                    rowsN = unique(sel(:,1));
+                    rowIdx = unique(sel(:,1));
+                    colIdx = unique(sel(:,2));
+                elseif obj.SelectionType == "row"
+                    rowIdx = unique(sel(:));
+                    colIdx = (1 : width(opts.Data))';
+                elseif obj.SelectionType == "column"
+                    rowIdx = (1 : height(opts.Data))';
+                    colIdx = unique(sel(:));
                 end
             else
-                rowsN = [];
+                rowIdx = [];
+                colIdx = [];
             end
         end
 
@@ -186,7 +222,7 @@ classdef TableController < handle
             sel = obj.getSelection();
             data = obj.getData();
             if ~isempty(sel) && ~isempty(data)
-                iRow = obj.getRowNum();
+                iRow = obj.getSelectionIdx(sel, Data=data);
                 [data, ~, iRowNew] = UI.util.moveRows(data, iRow, dir);
                 obj.setData(data);
                 if obj.SelectionType == "cell"
